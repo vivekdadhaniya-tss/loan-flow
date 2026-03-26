@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .message(ex.getMessage())
+                .message("Unexpected error occurred")
                 .path(request.getRequestURI())
                 .timestamp(Instant.now())
                 .errorCode("INTERNAL_SERVER_ERROR")
