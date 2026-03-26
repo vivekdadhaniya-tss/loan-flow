@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: loan-flow
+
+  # DATABASE CONNECTION (PostgreSQL)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/loan_db
+    username: postgres
+    password: Temp@12345
+    driver-class-name: org.postgresql.Driver
+
+  # JPA / HIBERNATE CONFIGURATION
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # EMAIL CONFIGURATION (For Notifications)
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-email-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # EXTERNAL API INTEGRATION
+  credit-bureau:
+    base-url: http://localhost:8081
+    api-key: your-credit-bureau-api-key
