@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/loan_db
     username: postgres
-    password: Temp@12345
+    password: Temp@123456
     driver-class-name: org.postgresql.Driver
 
   # JPA / HIBERNATE CONFIGURATION
