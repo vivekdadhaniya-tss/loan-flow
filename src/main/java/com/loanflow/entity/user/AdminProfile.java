@@ -1,6 +1,27 @@
 package com.loanflow.entity.user;
 
+import com.loanflow.enums.AdminAccessLevel;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.validator.constraints.UUID;
 
+import java.time.LocalDateTime;
 
-public class Admin {
+@Entity
+@Table(name = "admin_profiles")
+@DiscriminatorValue("ADMIN")
+@Getter
+@Setter
+@NoArgsConstructor
+public class AdminProfile extends User {
+
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id" , nullable = false)
+//    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AdminAccessLevel accessLevel;
+
+    private LocalDateTime lastActionAt;
 }

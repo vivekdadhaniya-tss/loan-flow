@@ -1,2 +1,6 @@
-package com.loanflow.enums;public enum PenaltyStatus {
+package com.loanflow.enums;
+
+public enum PenaltyStatus {
+    APPLIED,
+    SETTLED
 }

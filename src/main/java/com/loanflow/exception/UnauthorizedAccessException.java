@@ -1,4 +1,9 @@
 package com.loanflow.exception;
 
-public class UnauthorizedAccessException {
+import org.springframework.http.HttpStatus;
+
+public class UnauthorizedAccessException extends ApplicationException{
+    public UnauthorizedAccessException(String message) {
+        super(message, "UNAUTHORIZED", HttpStatus.FORBIDDEN);
+    }
 }
