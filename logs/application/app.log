@@ -1,0 +1,523 @@
+2026-03-28 00:01:53.112 [INFO] [background-preinit] [] [] [] [] [] org.hibernate.validator.internal.util.Version.<clinit>:18 - HV000001: Hibernate Validator 9.0.1.Final 
+2026-03-28 00:01:53.224 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarting:54 - Starting LoanFlowApplication using Java 18.0.2.1 with PID 1380 (C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow\target\classes started by Vrunda.Chavada in C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow) 
+2026-03-28 00:01:53.226 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.logStartupProfileInfo:652 - No active profile set, falling back to 1 default profile: "default" 
+2026-03-28 00:01:56.102 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Initializing ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:01:56.105 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting service [Tomcat] 
+2026-03-28 00:01:56.105 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting Servlet engine: [Apache Tomcat/11.0.18] 
+2026-03-28 00:01:56.939 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:102 - HHH008540: Processing PersistenceUnitInfo [name: default] 
+2026-03-28 00:01:57.070 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.Version.logVersion:41 - HHH000001: Hibernate ORM core version 7.2.7.Final 
+2026-03-28 00:01:58.094 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:109 - HikariPool-1 - Starting... 
+2026-03-28 00:01:59.474 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:143 - HHH000247: ErrorCode: 0, SQLState: 3D000 
+2026-03-28 00:01:59.477 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:144 - FATAL: database "loan_db" does not exist 
+2026-03-28 00:01:59.480 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata:444 - HHH100046: Could not obtain connection to query JDBC database metadata org.hibernate.exception.GenericJDBCException: Unable to obtain isolated JDBC connection [FATAL: database "loan_db" does not exist] [n/a]
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:39)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:115)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:101)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:51)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata(JdbcEnvironmentInitiator.java:366)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironment(JdbcEnvironmentInitiator.java:143)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:120)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:80)
+	at org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.initiateService(StandardServiceRegistryImpl.java:133)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.createService(AbstractServiceRegistryImpl.java:260)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.initializeService(AbstractServiceRegistryImpl.java:235)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.getService(AbstractServiceRegistryImpl.java:212)
+	at org.hibernate.boot.model.relational.Database.<init>(Database.java:44)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.getDatabase(InFlightMetadataCollectorImpl.java:251)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.<init>(InFlightMetadataCollectorImpl.java:203)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:172)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1392)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1472)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1454)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.loanflow.LoanFlowApplication.main(LoanFlowApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.postgresql.util.PSQLException: FATAL: database "loan_db" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2875)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:3000)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:235)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:344)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:576)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.hibernate.engine.jdbc.connections.internal.DataSourceConnectionProvider.getConnection(DataSourceConnectionProvider.java:137)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:508)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:48)
+	... 40 common frames omitted
+
+2026-03-28 00:01:59.541 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl.constructDialect:152 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default) 
+2026-03-28 00:01:59.558 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.logConnectionInfo:179 - HHH10001005: Database info:
+	Database JDBC URL [undefined/unknown]
+	Database driver: undefined/unknown
+	Database dialect: PostgreSQLDialect
+	Database version: 13.0
+	Default catalog/schema: unknown/unknown
+	Autocommit mode: undefined/unknown
+	Isolation level: NONE [default NONE]
+	JDBC fetch size: undefined/unknown
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown 
+2026-03-28 00:01:59.905 [ERROR] [restartedMain] [] [] [] [] [] org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory:453 - Failed to initialize JPA EntityManagerFactory: Entity 'com.loanflow.entity.user.AdminProfile' is a subclass in a 'SINGLE_TABLE' hierarchy and may not be annotated '@Table' (the root class declares the table mapping for the hierarchy) 
+2026-03-28 00:01:59.908 [WARN] [restartedMain] [] [] [] [] [] org.springframework.context.support.AbstractApplicationContext.refresh:629 - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Entity 'com.loanflow.entity.user.AdminProfile' is a subclass in a 'SINGLE_TABLE' hierarchy and may not be annotated '@Table' (the root class declares the table mapping for the hierarchy) 
+2026-03-28 00:01:59.912 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Stopping service [Tomcat] 
+2026-03-28 00:01:59.948 [ERROR] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.reportFailure:863 - Application run failed org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Entity 'com.loanflow.entity.user.AdminProfile' is a subclass in a 'SINGLE_TABLE' hierarchy and may not be annotated '@Table' (the root class declares the table mapping for the hierarchy)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1817)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.loanflow.LoanFlowApplication.main(LoanFlowApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.hibernate.AnnotationException: Entity 'com.loanflow.entity.user.AdminProfile' is a subclass in a 'SINGLE_TABLE' hierarchy and may not be annotated '@Table' (the root class declares the table mapping for the hierarchy)
+	at org.hibernate.boot.model.internal.EntityBinder.handleClassTable(EntityBinder.java:787)
+	at org.hibernate.boot.model.internal.EntityBinder.bindTables(EntityBinder.java:240)
+	at org.hibernate.boot.model.internal.EntityBinder.bindEntityClass(EntityBinder.java:204)
+	at org.hibernate.boot.model.internal.AnnotationBinder.bindClass(AnnotationBinder.java:247)
+	at org.hibernate.boot.model.source.internal.annotations.AnnotationMetadataSourceProcessorImpl.processEntityHierarchies(AnnotationMetadataSourceProcessorImpl.java:167)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess$1.processEntityHierarchies(MetadataBuildingProcess.java:318)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.coordinateProcessors(MetadataBuildingProcess.java:352)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:201)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1392)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1472)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1454)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	... 18 common frames omitted
+
+2026-03-28 00:06:22.378 [INFO] [background-preinit] [] [] [] [] [] org.hibernate.validator.internal.util.Version.<clinit>:18 - HV000001: Hibernate Validator 9.0.1.Final 
+2026-03-28 00:06:22.453 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarting:54 - Starting LoanFlowApplication using Java 18.0.2.1 with PID 17672 (C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow\target\classes started by Vrunda.Chavada in C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow) 
+2026-03-28 00:06:22.455 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.logStartupProfileInfo:652 - No active profile set, falling back to 1 default profile: "default" 
+2026-03-28 00:06:26.070 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Initializing ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:06:26.075 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting service [Tomcat] 
+2026-03-28 00:06:26.075 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting Servlet engine: [Apache Tomcat/11.0.18] 
+2026-03-28 00:06:28.486 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:102 - HHH008540: Processing PersistenceUnitInfo [name: default] 
+2026-03-28 00:06:28.599 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.Version.logVersion:41 - HHH000001: Hibernate ORM core version 7.2.7.Final 
+2026-03-28 00:06:29.740 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:109 - HikariPool-1 - Starting... 
+2026-03-28 00:06:31.080 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:143 - HHH000247: ErrorCode: 0, SQLState: 3D000 
+2026-03-28 00:06:31.082 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:144 - FATAL: database "loan_db" does not exist 
+2026-03-28 00:06:31.083 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata:444 - HHH100046: Could not obtain connection to query JDBC database metadata org.hibernate.exception.GenericJDBCException: Unable to obtain isolated JDBC connection [FATAL: database "loan_db" does not exist] [n/a]
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:39)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:115)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:101)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:51)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata(JdbcEnvironmentInitiator.java:366)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironment(JdbcEnvironmentInitiator.java:143)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:120)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:80)
+	at org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.initiateService(StandardServiceRegistryImpl.java:133)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.createService(AbstractServiceRegistryImpl.java:260)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.initializeService(AbstractServiceRegistryImpl.java:235)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.getService(AbstractServiceRegistryImpl.java:212)
+	at org.hibernate.boot.model.relational.Database.<init>(Database.java:44)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.getDatabase(InFlightMetadataCollectorImpl.java:251)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.<init>(InFlightMetadataCollectorImpl.java:203)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:172)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1392)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1472)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1454)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.loanflow.LoanFlowApplication.main(LoanFlowApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.postgresql.util.PSQLException: FATAL: database "loan_db" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2875)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:3000)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:235)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:344)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:576)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.hibernate.engine.jdbc.connections.internal.DataSourceConnectionProvider.getConnection(DataSourceConnectionProvider.java:137)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:508)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:48)
+	... 40 common frames omitted
+
+2026-03-28 00:06:31.107 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl.constructDialect:152 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default) 
+2026-03-28 00:06:31.119 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.logConnectionInfo:179 - HHH10001005: Database info:
+	Database JDBC URL [undefined/unknown]
+	Database driver: undefined/unknown
+	Database dialect: PostgreSQLDialect
+	Database version: 13.0
+	Default catalog/schema: unknown/unknown
+	Autocommit mode: undefined/unknown
+	Isolation level: NONE [default NONE]
+	JDBC fetch size: undefined/unknown
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown 
+2026-03-28 00:06:31.576 [ERROR] [restartedMain] [] [] [] [] [] org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory:453 - Failed to initialize JPA EntityManagerFactory: Could not determine recommended JdbcType for Java type 'org.hibernate.validator.constraints.UUID' 
+2026-03-28 00:06:31.578 [WARN] [restartedMain] [] [] [] [] [] org.springframework.context.support.AbstractApplicationContext.refresh:629 - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Could not determine recommended JdbcType for Java type 'org.hibernate.validator.constraints.UUID' 
+2026-03-28 00:06:31.583 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Stopping service [Tomcat] 
+2026-03-28 00:06:31.613 [ERROR] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.reportFailure:863 - Application run failed org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Could not determine recommended JdbcType for Java type 'org.hibernate.validator.constraints.UUID'
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1817)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.loanflow.LoanFlowApplication.main(LoanFlowApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.hibernate.type.descriptor.java.spi.JdbcTypeRecommendationException: Could not determine recommended JdbcType for Java type 'org.hibernate.validator.constraints.UUID'
+	at org.hibernate.type.descriptor.java.spi.UnknownBasicJavaType.getRecommendedJdbcType(UnknownBasicJavaType.java:60)
+	at org.hibernate.boot.model.process.internal.InferredBasicValueResolver.from(InferredBasicValueResolver.java:161)
+	at org.hibernate.mapping.BasicValue.resolution(BasicValue.java:643)
+	at org.hibernate.mapping.BasicValue.buildResolution(BasicValue.java:447)
+	at org.hibernate.mapping.BasicValue.buildResolution(BasicValue.java:421)
+	at org.hibernate.mapping.BasicValue.resolve(BasicValue.java:338)
+	at org.hibernate.mapping.BasicValue.resolve(BasicValue.java:328)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.lambda$processValueResolvers$0(InFlightMetadataCollectorImpl.java:1760)
+	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1672)
+	at java.base/java.util.ArrayList.removeIf(ArrayList.java:1660)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.processValueResolvers(InFlightMetadataCollectorImpl.java:1760)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.processSecondPasses(InFlightMetadataCollectorImpl.java:1749)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.coordinateProcessors(MetadataBuildingProcess.java:357)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:201)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1392)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1472)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1454)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	... 18 common frames omitted
+
+2026-03-28 00:09:39.178 [INFO] [background-preinit] [] [] [] [] [] org.hibernate.validator.internal.util.Version.<clinit>:18 - HV000001: Hibernate Validator 9.0.1.Final 
+2026-03-28 00:09:39.250 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarting:54 - Starting LoanFlowApplication using Java 18.0.2.1 with PID 21756 (C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow\target\classes started by Vrunda.Chavada in C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow) 
+2026-03-28 00:09:39.252 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.logStartupProfileInfo:652 - No active profile set, falling back to 1 default profile: "default" 
+2026-03-28 00:09:41.859 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Initializing ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:09:41.863 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting service [Tomcat] 
+2026-03-28 00:09:41.864 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting Servlet engine: [Apache Tomcat/11.0.18] 
+2026-03-28 00:09:42.405 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:102 - HHH008540: Processing PersistenceUnitInfo [name: default] 
+2026-03-28 00:09:42.527 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.Version.logVersion:41 - HHH000001: Hibernate ORM core version 7.2.7.Final 
+2026-03-28 00:09:43.327 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:109 - HikariPool-1 - Starting... 
+2026-03-28 00:09:44.681 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:143 - HHH000247: ErrorCode: 0, SQLState: 3D000 
+2026-03-28 00:09:44.682 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:144 - FATAL: database "loan_db" does not exist 
+2026-03-28 00:09:44.684 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata:444 - HHH100046: Could not obtain connection to query JDBC database metadata org.hibernate.exception.GenericJDBCException: Unable to obtain isolated JDBC connection [FATAL: database "loan_db" does not exist] [n/a]
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:39)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:115)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:101)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:51)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata(JdbcEnvironmentInitiator.java:366)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironment(JdbcEnvironmentInitiator.java:143)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:120)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:80)
+	at org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.initiateService(StandardServiceRegistryImpl.java:133)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.createService(AbstractServiceRegistryImpl.java:260)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.initializeService(AbstractServiceRegistryImpl.java:235)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.getService(AbstractServiceRegistryImpl.java:212)
+	at org.hibernate.boot.model.relational.Database.<init>(Database.java:44)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.getDatabase(InFlightMetadataCollectorImpl.java:251)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.<init>(InFlightMetadataCollectorImpl.java:203)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:172)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1392)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1472)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1454)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.loanflow.LoanFlowApplication.main(LoanFlowApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.postgresql.util.PSQLException: FATAL: database "loan_db" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2875)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:3000)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:235)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:344)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:576)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.hibernate.engine.jdbc.connections.internal.DataSourceConnectionProvider.getConnection(DataSourceConnectionProvider.java:137)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:508)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:48)
+	... 40 common frames omitted
+
+2026-03-28 00:09:44.717 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl.constructDialect:152 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default) 
+2026-03-28 00:09:44.730 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.logConnectionInfo:179 - HHH10001005: Database info:
+	Database JDBC URL [undefined/unknown]
+	Database driver: undefined/unknown
+	Database dialect: PostgreSQLDialect
+	Database version: 13.0
+	Default catalog/schema: unknown/unknown
+	Autocommit mode: undefined/unknown
+	Isolation level: NONE [default NONE]
+	JDBC fetch size: undefined/unknown
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown 
+2026-03-28 00:09:46.184 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator.initiateService:53 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration) 
+2026-03-28 00:09:46.210 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:109 - HikariPool-1 - Starting... 
+2026-03-28 00:09:47.347 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:143 - HHH000247: ErrorCode: 0, SQLState: 3D000 
+2026-03-28 00:09:47.348 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper.logExceptions:144 - FATAL: database "loan_db" does not exist 
+2026-03-28 00:09:47.358 [ERROR] [restartedMain] [] [] [] [] [] org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory:453 - Failed to initialize JPA EntityManagerFactory: Unable to build Hibernate SessionFactory  [persistence unit: default] ; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution [FATAL: database "loan_db" does not exist] [n/a] 
+2026-03-28 00:09:47.361 [WARN] [restartedMain] [] [] [] [] [] org.springframework.context.support.AbstractApplicationContext.refresh:629 - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Unable to build Hibernate SessionFactory  [persistence unit: default] ; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution [FATAL: database "loan_db" does not exist] [n/a] 
+2026-03-28 00:09:47.365 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Stopping service [Tomcat] 
+2026-03-28 00:09:47.397 [ERROR] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.reportFailure:863 - Application run failed org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/hibernate/autoconfigure/HibernateJpaConfiguration.class]: Unable to build Hibernate SessionFactory  [persistence unit: default] ; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution [FATAL: database "loan_db" does not exist] [n/a]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1817)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:977)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at com.loanflow.LoanFlowApplication.main(LoanFlowApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: jakarta.persistence.PersistenceException: Unable to build Hibernate SessionFactory  [persistence unit: default] ; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution [FATAL: database "loan_db" does not exist] [n/a]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:448)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:411)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:419)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	... 18 common frames omitted
+Caused by: org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution [FATAL: database "loan_db" does not exist] [n/a]
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:39)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:115)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:101)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:71)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:37)
+	at org.hibernate.tool.schema.internal.exec.ImprovedExtractionContextImpl.getJdbcConnection(ImprovedExtractionContextImpl.java:61)
+	at org.hibernate.tool.schema.extract.spi.ExtractionContext.getQueryResults(ExtractionContext.java:41)
+	at org.hibernate.tool.schema.extract.internal.SequenceInformationExtractorLegacyImpl.extractMetadata(SequenceInformationExtractorLegacyImpl.java:36)
+	at org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl.initializeSequences(DatabaseInformationImpl.java:73)
+	at org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl.<init>(DatabaseInformationImpl.java:63)
+	at org.hibernate.tool.schema.extract.internal.CachingDatabaseInformationImpl.<init>(CachingDatabaseInformationImpl.java:43)
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.buildDatabaseInformation(GroupedSchemaMigratorImpl.java:112)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:83)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:269)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$1(SchemaManagementToolCoordinator.java:101)
+	at java.base/java.util.HashMap.forEach(HashMap.java:1421)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:100)
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:35)
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:33)
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:323)
+	at org.hibernate.internal.SessionFactoryRegistry.instantiateSessionFactory(SessionFactoryRegistry.java:64)
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:437)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1456)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:93)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:443)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:436)
+	... 22 common frames omitted
+Caused by: org.postgresql.util.PSQLException: FATAL: database "loan_db" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2875)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:3000)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:235)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:344)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:57)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:290)
+	at org.postgresql.Driver.makeConnection(Driver.java:448)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:576)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.hibernate.engine.jdbc.connections.internal.DataSourceConnectionProvider.getConnection(DataSourceConnectionProvider.java:137)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:508)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:44)
+	... 44 common frames omitted
+
+2026-03-28 00:10:28.469 [INFO] [background-preinit] [] [] [] [] [] org.hibernate.validator.internal.util.Version.<clinit>:18 - HV000001: Hibernate Validator 9.0.1.Final 
+2026-03-28 00:10:28.568 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarting:54 - Starting LoanFlowApplication using Java 18.0.2.1 with PID 27016 (C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow\target\classes started by Vrunda.Chavada in C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow) 
+2026-03-28 00:10:28.570 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.logStartupProfileInfo:652 - No active profile set, falling back to 1 default profile: "default" 
+2026-03-28 00:10:31.868 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Initializing ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:10:31.874 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting service [Tomcat] 
+2026-03-28 00:10:31.875 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting Servlet engine: [Apache Tomcat/11.0.18] 
+2026-03-28 00:10:32.557 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:102 - HHH008540: Processing PersistenceUnitInfo [name: default] 
+2026-03-28 00:10:32.709 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.Version.logVersion:41 - HHH000001: Hibernate ORM core version 7.2.7.Final 
+2026-03-28 00:10:33.967 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:109 - HikariPool-1 - Starting... 
+2026-03-28 00:10:34.507 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.pool.HikariPool.checkFailFast:580 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@148e5903 
+2026-03-28 00:10:34.511 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:122 - HikariPool-1 - Start completed. 
+2026-03-28 00:10:34.553 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl.constructDialect:152 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default) 
+2026-03-28 00:10:34.581 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.logConnectionInfo:179 - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/loan_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.3
+	Default catalog/schema: loan_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown 
+2026-03-28 00:10:37.085 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator.initiateService:53 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration) 
+2026-03-28 00:10:37.589 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.591 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "uknyeoougbpgukeu3mgv182vj5a" of relation "borrower_profiles" does not exist, skipping 
+2026-03-28 00:10:37.608 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.608 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "uk313n41pjadhh8q3rr3et5a3pe" of relation "borrower_profiles" does not exist, skipping 
+2026-03-28 00:10:37.663 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.664 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "uk2t8j61i6uk5bbb7h6lenp94o8" of relation "loan_officer_profiles" does not exist, skipping 
+2026-03-28 00:10:37.708 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.708 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "ukn0f0lgenbr3aknq9eahpk3los" of relation "loans" does not exist, skipping 
+2026-03-28 00:10:37.718 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.719 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "uki9yw5pe8m8yjmgn5cy2yc0xw5" of relation "loans" does not exist, skipping 
+2026-03-28 00:10:37.755 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.755 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "uk64gybqcj9v184thbwxtrrrup2" of relation "overdue_tracker" does not exist, skipping 
+2026-03-28 00:10:37.766 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.766 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "ukdod9se6i4y215s4619256wr66" of relation "payments" does not exist, skipping 
+2026-03-28 00:10:37.779 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:250 - HHH000247: ErrorCode: 0, SQLState: 00000 
+2026-03-28 00:10:37.780 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.spi.SqlExceptionHelper$StandardWarningHandler.handleWarning:251 - constraint "uk6dotkott2kjsp8vw4d0m25fb7" of relation "users" does not exist, skipping 
+2026-03-28 00:10:38.000 [WARN] [restartedMain] [] [] [] [] [] org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration.openEntityManagerInViewInterceptor:247 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning 
+2026-03-28 00:10:38.542 [WARN] [restartedMain] [] [] [] [] [] org.springframework.boot.thymeleaf.autoconfigure.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration.checkTemplateLocationExists:100 - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false) 
+2026-03-28 00:10:39.104 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:10:39.162 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarted:60 - Started LoanFlowApplication in 12.071 seconds (process running for 13.864) 
+2026-03-28 00:29:01.633 [INFO] [SpringApplicationShutdownHook] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.close:349 - HikariPool-1 - Shutdown initiated... 
+2026-03-28 00:29:01.710 [INFO] [SpringApplicationShutdownHook] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.close:351 - HikariPool-1 - Shutdown completed. 
+2026-03-28 00:29:13.299 [INFO] [background-preinit] [] [] [] [] [] org.hibernate.validator.internal.util.Version.<clinit>:18 - HV000001: Hibernate Validator 9.0.1.Final 
+2026-03-28 00:29:13.447 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarting:54 - Starting LoanFlowApplication using Java 18.0.2.1 with PID 20516 (C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow\target\classes started by Vrunda.Chavada in C:\Users\vrunda.chavada\IdeaProjects\Spring Projects\loan-flow) 
+2026-03-28 00:29:13.448 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.SpringApplication.logStartupProfileInfo:652 - No active profile set, falling back to 1 default profile: "default" 
+2026-03-28 00:29:18.242 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Initializing ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:29:18.251 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting service [Tomcat] 
+2026-03-28 00:29:18.251 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting Servlet engine: [Apache Tomcat/11.0.18] 
+2026-03-28 00:29:19.106 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:102 - HHH008540: Processing PersistenceUnitInfo [name: default] 
+2026-03-28 00:29:19.218 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.Version.logVersion:41 - HHH000001: Hibernate ORM core version 7.2.7.Final 
+2026-03-28 00:29:20.264 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:109 - HikariPool-1 - Starting... 
+2026-03-28 00:29:20.683 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.pool.HikariPool.checkFailFast:580 - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@148e5903 
+2026-03-28 00:29:20.685 [INFO] [restartedMain] [] [] [] [] [] com.zaxxer.hikari.HikariDataSource.getConnection:122 - HikariPool-1 - Start completed. 
+2026-03-28 00:29:20.734 [WARN] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl.constructDialect:152 - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default) 
+2026-03-28 00:29:20.764 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.logConnectionInfo:179 - HHH10001005: Database info:
+	Database JDBC URL [jdbc:postgresql://localhost:5432/loan_db]
+	Database driver: PostgreSQL JDBC Driver
+	Database dialect: PostgreSQLDialect
+	Database version: 18.3
+	Default catalog/schema: loan_db/public
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown 
+2026-03-28 00:29:24.069 [INFO] [restartedMain] [] [] [] [] [] org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator.initiateService:53 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration) 
+2026-03-28 00:29:24.357 [WARN] [restartedMain] [] [] [] [] [] org.springframework.boot.jpa.autoconfigure.JpaBaseConfiguration$JpaWebConfiguration.openEntityManagerInViewInterceptor:247 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning 
+2026-03-28 00:29:25.139 [WARN] [restartedMain] [] [] [] [] [] org.springframework.boot.thymeleaf.autoconfigure.ThymeleafAutoConfiguration$DefaultTemplateResolverConfiguration.checkTemplateLocationExists:100 - Cannot find template location: classpath:/templates/ (please add some templates, check your Thymeleaf configuration, or set spring.thymeleaf.check-template-location=false) 
+2026-03-28 00:29:25.407 [INFO] [restartedMain] [] [] [] [] [] org.apache.juli.logging.DirectJDKLog.log:168 - Starting ProtocolHandler ["http-nio-8080"] 
+2026-03-28 00:29:25.449 [INFO] [restartedMain] [] [] [] [] [] org.springframework.boot.StartupInfoLogger.logStarted:60 - Started LoanFlowApplication in 13.046 seconds (process running for 14.362) 
