@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT}
 
 spring:
   application:
@@ -7,15 +7,15 @@ spring:
 
   # DATABASE CONNECTION (PostgreSQL)
   datasource:
-    url: jdbc:postgresql://localhost:5432/loan_db
-    username: postgres
-    password: Temp@12345
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   # JPA / HIBERNATE CONFIGURATION
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${JPA_DDL_AUTO}
     show-sql: true
     properties:
       hibernate:
@@ -24,10 +24,10 @@ spring:
 
   # EMAIL CONFIGURATION (For Notifications)
   mail:
-    host: smtp.example.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-email-password
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -35,7 +35,7 @@ spring:
           starttls:
             enable: true
 
-  # EXTERNAL API INTEGRATION
-  credit-bureau:
-    base-url: http://localhost:8081
-    api-key: your-credit-bureau-api-key
+# EXTERNAL API INTEGRATION
+credit-bureau:
+  base-url: ${CREDIT_BASE_URL}
+  timeout-ms: ${CREDIT_TIMEOUT}
