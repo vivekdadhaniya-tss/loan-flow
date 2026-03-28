@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 @Slf4j
 public class DtiCalculationServiceImpl implements DtiCalculationService {
 
+    @Override
     public BigDecimal calculateInitialDti(
             BigDecimal internalEmi,
             BigDecimal externalEmi,
@@ -33,6 +34,7 @@ public class DtiCalculationServiceImpl implements DtiCalculationService {
         return dti;
     }
 
+    @Override
     public BigDecimal calculateFinalDti(
             BigDecimal internalEmi,
             BigDecimal externalEmi,
@@ -54,6 +56,7 @@ public class DtiCalculationServiceImpl implements DtiCalculationService {
         return dti;
     }
 
+    @Override
     public LoanStrategy suggestStrategy(BigDecimal dtiInitial, int tenureMonths) {
         if(dtiInitial.compareTo(LoanConstants.DTI_LOW_THRESHOLD) < 0) {
             return LoanStrategy.FLAT_RATE_LOAN;
@@ -66,7 +69,8 @@ public class DtiCalculationServiceImpl implements DtiCalculationService {
         return null;  // DTI > 40% → REJECT
     }
 
-    private void validateIncome(BigDecimal income) {
+    @Override
+    public void validateIncome(BigDecimal income) {
         if (MoneyUtil.isZeroOrNegative(income)) {
             throw new BusinessRuleException("Monthly income must be positive for DTI calculation.");
         }
