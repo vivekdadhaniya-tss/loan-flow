@@ -3,7 +3,6 @@ package com.loanflow.entity.user;
 import com.loanflow.enums.AdminAccessLevel;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.validator.constraints.UUID;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AdminProfile extends User {
+public class Admin extends User {
 
 //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id" , nullable = false)

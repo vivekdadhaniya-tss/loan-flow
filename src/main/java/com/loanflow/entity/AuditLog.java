@@ -1,6 +1,5 @@
 package com.loanflow.entity;
 
-import com.loanflow.entity.base.BaseEntity;
 import com.loanflow.entity.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -55,6 +54,6 @@ public class AuditLog {
     @Column(length = 1000)
     private String remarks;
 
-     @Column(name = "created_at", nullable = false, updatable = false)
-     private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
