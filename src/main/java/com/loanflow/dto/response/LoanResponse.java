@@ -12,6 +12,8 @@ public class LoanResponse {
 
     private UUID id;
 
+    private String loanNumber;
+
     private UUID applicationId;
 
     private BigDecimal approvedAmount;

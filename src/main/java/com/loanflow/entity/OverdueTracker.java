@@ -39,17 +39,21 @@ public class OverdueTracker extends BaseEntity {
 
     // --- Penalty fields ---
     @Column(precision = 12, scale = 2)
-    private BigDecimal penaltyAmount = BigDecimal.ZERO;
+    private BigDecimal fixedPenaltyAmount = BigDecimal.ZERO;
 
     @Column(precision = 5, scale = 2)
     @Min(0) @Max(100)
     private BigDecimal penaltyRate = BigDecimal.ZERO;
+
+    @Column(precision = 5, scale = 2)
+    private BigDecimal penaltyCharge = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private PenaltyStatus penaltyStatus;
 
     @Column(nullable = false)
+    @Min(0) @Max(90)
     private Integer daysOverdue = 0;
 
     @Column(nullable = false)

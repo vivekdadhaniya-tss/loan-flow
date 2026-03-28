@@ -24,10 +24,12 @@ public class OverdueTrackerResponse {
 
     private Integer daysOverdue;
 
-    private BigDecimal penaltyAmount;
+    private BigDecimal fixedPenaltyAmount;
 
     /////****** ADDED  ********/////////
     private BigDecimal penaltyRate;
+
+    private BigDecimal penaltyCharge;
 
     private Boolean penaltySettled;
 

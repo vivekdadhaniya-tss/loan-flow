@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Loan extends BaseEntity {
 
-    @NotBlank
     @Column(name = "loan_number", nullable = false, unique = true, length = 30)
     private String loanNumber;
 

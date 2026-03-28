@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class LoanPortfolioResponse {
 
+    private String loanNumber;
+
     private long activeCount;
 
     private long closedCount;

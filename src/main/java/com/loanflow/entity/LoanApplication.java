@@ -3,6 +3,7 @@ package com.loanflow.entity;
 import com.loanflow.entity.base.BaseEntity;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.ApplicationStatus;
+import com.loanflow.enums.BureauStatus;
 import com.loanflow.enums.LoanStrategy;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -13,9 +14,19 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "loan_applications")
+@Table(
+        name = "loan_applications" ,
+        indexes = {
+                @Index(name = "idx_loan_application_number", columnList = "application_number"),
+                @Index(name = "idx_borrower", columnList = "borrower_id"),
+                @Index(name = "idx_status", columnList = "status")
+        }
+)
 @Getter @Setter @NoArgsConstructor
 public class LoanApplication extends BaseEntity {
+
+    @Column(name = "application_number", unique = true, nullable = false, updatable = false, length = 20)
+    private String applicationNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_id", nullable = false)
@@ -37,6 +48,10 @@ public class LoanApplication extends BaseEntity {
     @NotNull @Positive
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal monthlyIncome;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private BureauStatus bureauStatus;
 
     @NotNull @PositiveOrZero
     @Column(nullable = false, precision = 15, scale = 2)

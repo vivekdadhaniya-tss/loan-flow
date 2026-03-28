@@ -1,5 +1,6 @@
 package com.loanflow.dto.response;
 import com.loanflow.enums.ApplicationStatus;
+import com.loanflow.enums.BureauStatus;
 import com.loanflow.enums.LoanStrategy;
 import lombok.*;
 import java.math.BigDecimal;
@@ -14,6 +15,8 @@ import java.util.UUID;
 public class LoanApplicationResponse {
 
     private UUID id;
+
+    private String applicationNumber;
 
     private BigDecimal requestedAmount;
 
@@ -40,7 +43,7 @@ public class LoanApplicationResponse {
 //    private Integer bureauScore;
 
     /** AVAILABLE or UNAVAILABLE */
-    private String bureauStatus;   // String or enum???
+    private BureauStatus bureauStatus;
 
     private LocalDateTime createdAt;
 
