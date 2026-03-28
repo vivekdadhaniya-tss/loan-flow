@@ -8,9 +8,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ApiResponse<T> {
 
+    /// *** Status Codes *** ///
+
     private final boolean success;
-    private final String  message;
-    private final T       data;
+    private final String message;
+    private final T data;
     private final LocalDateTime timestamp;
 
     public static <T> ApiResponse<T> ok(T data) {

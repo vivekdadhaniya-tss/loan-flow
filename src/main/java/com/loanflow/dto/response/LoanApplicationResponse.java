@@ -6,7 +6,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoanApplicationResponse {
 
     private UUID id;
@@ -34,9 +38,9 @@ public class LoanApplicationResponse {
 
 //    /** Credit Bureau score at application time — shown to officer */
 //    private Integer bureauScore;
-//
-//    /** AVAILABLE or UNAVAILABLE */
-//    private String bureauStatus;
+
+    /** AVAILABLE or UNAVAILABLE */
+    private String bureauStatus;   // String or enum???
 
     private LocalDateTime createdAt;
 
