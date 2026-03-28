@@ -18,7 +18,7 @@ public final class ApiConstants {
     // ── Common path segments ───────────────────────────────────────
     public static final String PATH_SCHEDULE       = "/schedule";
     public static final String PATH_APPLICATIONS   = "/applications";
-    public static final String PATH_APPROVE        = "/approve/{id}";
+    public static final String PATH_APPROVE        = "/approve/{applicationNumber}";
     public static final String PATH_SIMULATE       = "/simulate";
     public static final String PATH_REPORTS        = "/reports";
 }
