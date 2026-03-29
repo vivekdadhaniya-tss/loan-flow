@@ -27,6 +27,8 @@ public class LoanResponse {
     /** First-month EMI — actual amount varies per installment for Step-Up */
     private BigDecimal monthlyEmi;
 
+    private BigDecimal outstandingPrincipal;
+
     private Integer overdueCount;
 
     private LoanStatus status;

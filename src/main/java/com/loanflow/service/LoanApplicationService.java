@@ -14,6 +14,10 @@ public interface LoanApplicationService {
     @Transactional
     void cancelApplication(String applicationNumber, User borrower);
 
+    //  READ — officer pending queue
+    @Transactional(readOnly = true)
+    List<LoanApplicationResponse> getPendingApplications();
+
     @Transactional(readOnly = true)
     List<LoanApplicationResponse> getMyApplications(User borrower);
 }

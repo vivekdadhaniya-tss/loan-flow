@@ -7,10 +7,8 @@ import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.Borrower;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.*;
-import com.loanflow.event.LoanApplicationSubmittedEvent;
 import com.loanflow.exception.LoanLimitExceededException;
 import com.loanflow.exception.UnauthorizedAccessException;
-import com.loanflow.integration.CreditBureauClient;
 import com.loanflow.integration.CreditBureauService;
 import com.loanflow.integration.CreditBureauServiceImpl;
 import com.loanflow.mapper.LoanApplicationMapper;
@@ -36,7 +34,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional
@@ -161,6 +158,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         return loanApplicationMapper.toResponse(saved);
     }
 
+
     private String generateApplicationNumber() {
         Long seqVal = loanApplicationRepository.getNextApplicationSequence();
         String datePrefix = LocalDate.now()
@@ -207,6 +205,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 
     //  READ — officer pending queue
+    @Override
     @Transactional(readOnly = true)
     public List<LoanApplicationResponse> getPendingApplications() {
         List<LoanApplication> pending = loanApplicationRepository
@@ -223,5 +222,6 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .findByBorrowerOrderByCreatedAtDesc(borrower);
         return loanApplicationMapper.toResponseList(applications);
     }
+
 
 }
