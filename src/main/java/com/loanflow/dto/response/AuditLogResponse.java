@@ -1,5 +1,7 @@
 package com.loanflow.dto.response;
 
+import com.loanflow.enums.EntityType;
+import com.loanflow.enums.Role;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -8,7 +10,7 @@ import java.util.UUID;
 public class AuditLogResponse {
 
     private UUID id;
-    private String entityType;
+    private EntityType entityType;
     private UUID entityId;
     private String action;
     private String oldStatus;
@@ -20,7 +22,7 @@ public class AuditLogResponse {
     /** Null when actorRole = SYSTEM */
     private String performedByName;
 
-    private String actorRole;
+    private Role actorRole;
     private String remarks;
     private LocalDateTime createdAt;
 }

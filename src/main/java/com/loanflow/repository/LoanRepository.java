@@ -19,6 +19,14 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
     @Query(value = "SELECT nextval('loan_number_seq')", nativeQuery = true)
     Long getNextLoanSequence();
 
+    // ReportService: count per status for portfolio summary
+    long countByStatus(LoanStatus status);
+
+    // ReportService: count per status for portfolio summary
+    @Query("SELECT COALESCE(SUM(l.approvedAmount), 0) FROM Loan l")
+    BigDecimal sumAllApprovedAmounts();
+
+
     Long countByBorrowerAndStatus(User Browser, LoanStatus status);
 
     List<Loan> findByBorrowerAndStatus(User Borrower, LoanStatus status);

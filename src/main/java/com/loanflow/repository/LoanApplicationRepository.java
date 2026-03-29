@@ -23,4 +23,7 @@ public interface LoanApplicationRepository extends JpaRepository<LoanApplication
 
     List<LoanApplication> findByBorrower(User borrower);
 
+    List<LoanApplication> findByStatusOrderByCreatedAtAsc(ApplicationStatus status);
+
+    List<LoanApplication> findByBorrowerOrderByCreatedAtDesc(User borrower);
 }
