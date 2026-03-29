@@ -49,7 +49,7 @@ public class LoanServiceImpl implements LoanService {
     private final LoanMapper loanMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-
+    @Override
     // officer approve or reject loan application
     public LoanResponse processDecision(
             UUID applicationId, LoanDecisionRequest request, User officer) {
@@ -188,6 +188,7 @@ public class LoanServiceImpl implements LoanService {
         return String.format("LN-%s-%06d", datePrefix, seqVal);
     }
 
+    @Override
     public void closeLoanIfCompleted(Loan loan) {
         Long unpaidCount = emiScheduleRepository
                 .countByLoanAndStatusNot(loan, EmiStatus.PAID);
@@ -203,11 +204,13 @@ public class LoanServiceImpl implements LoanService {
         }
     }
 
+    @Override
     public List<LoanResponse> getMyLoans(User borrower) {
         List<Loan> loans = loanRepository.findByBorrowerOrderByCreatedAtDesc(borrower);
         return loanMapper.toResponseList(loans);
     }
 
+    @Override
     public Loan findById(UUID loanId) {
         return loanRepository.findById(loanId)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan not found: " + loanId));

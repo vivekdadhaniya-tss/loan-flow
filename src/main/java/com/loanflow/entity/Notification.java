@@ -58,6 +58,6 @@ public class Notification extends BaseEntity {
 
     private LocalDateTime scheduledAt;
 
-    private LocalDateTime sendAt;
+    private LocalDateTime sentAt;
 
 }

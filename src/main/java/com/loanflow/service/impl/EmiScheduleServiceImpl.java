@@ -27,22 +27,49 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
     private final LoanRepository loanRepository;
     private final EmiScheduleMapper emiScheduleMapper;
 
+    /**
+     * Generates the full amortization schedule for a loan using the
+     * given strategy, bulk-saves all installments, and returns the
+     * first installment's totalEmiAmount as the base EMI.
+     *
+     * Called by LoanServiceImpl.processDecision() after loan creation.
+     * The returned baseEmi is stored on Loan.monthlyEmi.
+     */
     @Override
     @Transactional
     public BigDecimal generateSchedule(Loan loan, EmiCalculationStrategy strategy) {
+
+        // Strategy generates the full schedule (FlatRate / Reducing / StepUp)
         List<EmiSchedule> schedule = strategy.generateEmiSchedule(loan);
-        emiScheduleRepository.saveAll(schedule);    // bulk insertion
-        log.info("Generated {} installments for loan {}" + schedule.size(), loan.getId());
-        return schedule.get(0).getTotalEmiAmount();   // return first EMI amount as reference
+
+        // Bulk insert — one SQL statement instead of N individual inserts
+        emiScheduleRepository.saveAll(schedule);
+
+        log.info("Generated {} EMI installments for loan {}",
+                schedule.size(), loan.getId());
+
+        // Return installment 1 amount — this is stored as Loan.monthlyEmi
+        // For StepUp: this is the BASE EMI (year 1), not the stepped-up amounts
+        // For Flat/Reducing: all months have the same EMI, so installment 1 is fine
+        return schedule.get(0).getTotalEmiAmount();
     }
 
+    /**
+     * Returns the complete amortization table for a loan,
+     * ordered by installment number ascending (1 → N).
+     * Used by BorrowerController and OfficerController.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<EmiScheduleResponse> getScheduleByLoan(UUID loanId) {
-        Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan not found: " + loanId));
 
-        List<EmiSchedule> schedules = emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
-        return emiScheduleMapper.toResponseList(schedules);
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Loan not found: " + loanId));
+
+        List<EmiSchedule> schedule =
+                emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
+
+        return emiScheduleMapper.toResponseList(schedule);
     }
 }

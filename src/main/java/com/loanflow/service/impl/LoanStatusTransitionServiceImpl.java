@@ -8,6 +8,7 @@ import com.loanflow.exception.InvalidStatusTransitionException;
 import com.loanflow.repository.LoanStatusHistoryRepository;
 import com.loanflow.service.LoanStatusTransitionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoanStatusTransitionServiceImpl implements LoanStatusTransitionService {
 
     private final LoanStatusHistoryRepository loanStatusHistoryRepository;
@@ -30,25 +32,33 @@ public class LoanStatusTransitionServiceImpl implements LoanStatusTransitionServ
     @Override
     public void transition(
             Loan loan, LoanStatus newStatus,
-            User changeBy, String reason) {
+            User changedBy, String reason) {
 
         Set<LoanStatus> allowed = VALID_TRANSITIONS.getOrDefault(loan.getStatus(), Set.of());
 
         if (!allowed.contains(newStatus)) {
             throw new InvalidStatusTransitionException(
-                    "Cannot transition Loan from " + loan.getStatus() + " to " + newStatus);
+                    "Cannot transition Loan from " + loan.getStatus()
+                            + " to " + newStatus
+                            + ". Allowed: " + allowed);
         }
 
-        LoanStatus old = loan.getStatus();
+        LoanStatus oldStatus = loan.getStatus();
         loan.setStatus(newStatus);
 
         LoanStatusHistory history = LoanStatusHistory.builder()
                 .loan(loan)
-                .oldStatus(old)
+                .oldStatus(oldStatus)
                 .newStatus(newStatus)
-                .changedBy(changeBy)    // null when system
+                .changedBy(changedBy)    // null when system
                 .reason(reason)
                 .changedAt(LocalDateTime.now())
                 .build();
+
+        loanStatusHistoryRepository.save(history);
+
+        log.info("Loan {} transitioned: {} → {} by {}",
+                loan.getId(), oldStatus, newStatus,
+                changedBy != null ? changedBy.getEmail() : "SYSTEM");
     }
 }
