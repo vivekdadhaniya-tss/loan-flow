@@ -22,7 +22,11 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_status", columnList = "status")
         }
 )
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoanApplication extends BaseEntity {
 
     @Column(name = "application_number", unique = true, nullable = false, updatable = false, length = 20)

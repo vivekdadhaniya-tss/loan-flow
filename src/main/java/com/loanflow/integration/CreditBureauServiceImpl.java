@@ -42,5 +42,8 @@ public class CreditBureauServiceImpl implements CreditBureauService{
         }
     }
 
-    public record ExternalDebtResult(BigDecimal externalMonthlyEmi, String bureauStatus) { }
+    public record ExternalDebtResult(
+            BigDecimal externalMonthlyEmi,
+            String bureauStatus
+    ) {}
 }
