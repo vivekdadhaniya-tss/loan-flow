@@ -13,4 +13,5 @@ public interface EmiScheduleService {
     BigDecimal generateSchedule(Loan loan, EmiCalculationStrategy strategy);
 
     List<EmiScheduleResponse> getScheduleByLoan(UUID loanId);
+    List<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber);
 }

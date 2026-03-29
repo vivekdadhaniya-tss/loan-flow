@@ -40,7 +40,7 @@ public class AuditLog {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     /**
      * Entity type being audited.

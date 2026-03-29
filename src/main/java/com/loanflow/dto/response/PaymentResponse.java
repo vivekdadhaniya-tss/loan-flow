@@ -11,6 +11,8 @@ public class PaymentResponse {
 
     private UUID id;
 
+    private String receiptNumber; // <=== Added this
+
     private UUID loanId;
 
     private Integer installmentNumber;

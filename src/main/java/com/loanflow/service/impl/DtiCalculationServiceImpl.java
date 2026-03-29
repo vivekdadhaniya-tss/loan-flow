@@ -59,9 +59,14 @@ public class DtiCalculationServiceImpl implements DtiCalculationService {
     @Override
     public LoanStrategy suggestStrategy(BigDecimal dtiInitial, int tenureMonths) {
         if(dtiInitial.compareTo(LoanConstants.DTI_LOW_THRESHOLD) < 0) {
+            log.info("Suggested Strategy :  {}" ,  LoanStrategy.FLAT_RATE_LOAN);
+
             return LoanStrategy.FLAT_RATE_LOAN;
+
         }
         if(dtiInitial.compareTo(LoanConstants.DTI_MID_THRESHOLD) <= 0) {
+            log.info("Suggested Strategy :  {}" ,  LoanStrategy.REDUCING_BALANCE_LOAN);
+
             return tenureMonths < LoanConstants.STEP_UP_TENURE_THRESHOLD
                     ? LoanStrategy.REDUCING_BALANCE_LOAN
                     : LoanStrategy.STEP_UP_EMI_LOAN;

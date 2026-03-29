@@ -8,13 +8,20 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.*;
-
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "payments")
+@Table(
+        name = "payments",
+        indexes = {
+                @Index(name = "idx_receipt_number", columnList = "receipt_number", unique = true)
+        }
+)
 @Getter @Setter @NoArgsConstructor
 public class Payment extends BaseEntity {
+
+    @Column(name = "receipt_number", unique = true, nullable = false, updatable = false, length = 30)
+    private String receiptNumber; // e.g., RCP-20260329-1001
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emi_schedule_id", nullable = false, unique = true)

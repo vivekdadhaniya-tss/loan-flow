@@ -67,6 +67,11 @@ public class Loan extends BaseEntity {
     private BigDecimal monthlyEmi;
 
     @NotNull
+    @PositiveOrZero // Balance can be 0, but never negative
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal outstandingPrincipal;
+
+    @NotNull
     @Min(0) @Max(360)
     @Column(nullable = false)
     private Integer overDueCount = 0;
