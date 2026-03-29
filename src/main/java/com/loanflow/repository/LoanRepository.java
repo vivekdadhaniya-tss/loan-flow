@@ -3,18 +3,29 @@ package com.loanflow.repository;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.LoanStatus;
-import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+@Repository
+public interface LoanRepository extends JpaRepository<Loan, UUID> {
 
-public interface LoanRepository extends JpaRepository<Loan , UUID> {
     @Query(value = "SELECT nextval('loan_number_seq')", nativeQuery = true)
     Long getNextLoanSequence();
+
+    // ReportService: count per status for portfolio summary
+    long countByStatus(LoanStatus status);
+
+    // ReportService: count per status for portfolio summary
+    @Query("SELECT COALESCE(SUM(l.approvedAmount), 0) FROM Loan l")
+    BigDecimal sumAllApprovedAmounts();
+
 
     Long countByBorrowerAndStatus(User Browser, LoanStatus status);
 
@@ -27,8 +38,7 @@ public interface LoanRepository extends JpaRepository<Loan , UUID> {
             WHERE l.borrower.id = :borrowerId
             AND l.status = 'ACTIVE'
             """)
-    Optional<BigDecimal> sumActiveMonthlyEmiByBorrower(@Param("borrowerId") UUID borrowerId);
-    // Sum of monthly EMI across all ACTIVE loans for this borrower
-    // Used by DtiCalculationService as Internal EMI
-
+    Optional<BigDecimal> sumActiveMonthlyEmi(@Param("borrowerId") UUID borrowerId);
+     // Sum of monthly EMI across all ACTIVE loans for this borrower
+     // Used by DtiCalculationService as Internal EMI
 }

@@ -1,7 +1,7 @@
 package com.loanflow.entity;
 
 import com.loanflow.entity.base.BaseEntity;
-import com.loanflow.entity.user.BorrowerProfile;
+import com.loanflow.entity.user.Borrower;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -40,5 +40,5 @@ public class Address extends BaseEntity {
 
     //bidirectional mapping
     @OneToOne(mappedBy = "address")
-    private BorrowerProfile borrowerProfile;
+    private Borrower borrower;
 }

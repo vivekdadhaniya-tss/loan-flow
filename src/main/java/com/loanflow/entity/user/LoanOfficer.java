@@ -4,15 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "loan_officer_profiles")
 @DiscriminatorValue("LOAN_OFFICER")
 @Getter
 @Setter
 @NoArgsConstructor
-public class LoanOfficerProfile extends User{
+public class LoanOfficer extends User{
 
 //    @Id
 //    private UUID id;

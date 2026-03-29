@@ -1,7 +1,6 @@
 package com.loanflow.entity.user;
 
 import com.loanflow.entity.Address;
-import com.loanflow.entity.base.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -15,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BorrowerProfile extends User {
+public class Borrower extends User {
 //    @OneToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id" , nullable = false)
 //    private User user;

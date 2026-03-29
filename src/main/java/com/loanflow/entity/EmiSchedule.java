@@ -16,7 +16,11 @@ import java.time.*;
                 @Index(columnList = "due_date"),
                 @Index(columnList = "status")
         })
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EmiSchedule extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
