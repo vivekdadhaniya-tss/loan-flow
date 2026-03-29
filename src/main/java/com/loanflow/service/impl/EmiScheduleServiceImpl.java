@@ -72,4 +72,9 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
 
         return emiScheduleMapper.toResponseList(schedule);
     }
+
+    @Override
+    public List<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber) {
+        return List.of();
+    }
 }

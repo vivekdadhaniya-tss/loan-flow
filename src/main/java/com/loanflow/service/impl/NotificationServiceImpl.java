@@ -70,7 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
             mailSender.send(message);
 
             saved.setStatus(NotificationStatus.SENT);
-            saved.setSendAt(LocalDateTime.now());
+            saved.setSentAt(LocalDateTime.now());
             log.info("Email sent to {} for event {}",
                     recipient.getEmail(), eventType);
 
@@ -96,7 +96,7 @@ public class NotificationServiceImpl implements NotificationService {
             mailSender.send(message);
 
             notification.setStatus(NotificationStatus.SENT);
-            notification.setSendAt(LocalDateTime.now());
+            notification.setSentAt(LocalDateTime.now());
 
         } catch (Exception e) {
             notification.setRetryCount(notification.getRetryCount() + 1);

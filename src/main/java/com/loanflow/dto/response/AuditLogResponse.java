@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class AuditLogResponse {
 
-    private Long id;
+    private UUID id;
     private EntityType entityType;
     private UUID entityId;
     private String action;

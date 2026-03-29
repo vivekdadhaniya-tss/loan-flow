@@ -35,7 +35,7 @@ spring:
           starttls:
             enable: true
 
-# EXTERNAL API INTEGRATION
-credit-bureau:
-  base-url: ${CREDIT_BASE_URL}
-  timeout-ms: ${CREDIT_TIMEOUT}
+## EXTERNAL API INTEGRATION
+#credit-bureau:
+#  base-url: ${CREDIT_BASE_URL}
+#  timeout-ms: ${CREDIT_TIMEOUT}
