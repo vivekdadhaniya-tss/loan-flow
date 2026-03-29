@@ -11,6 +11,9 @@ import java.util.UUID;
 @Repository
 public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
 
+    // Example of a custom paginated query (if you want to filter by action in the future)
+//    Page<AuditLog> findByAction(String action, Pageable pageable);
+
     // Admin view — paginated, most recent first
     Page<AuditLog> findAllByOrderByCreatedAtDesc(Pageable pageable);
 }
