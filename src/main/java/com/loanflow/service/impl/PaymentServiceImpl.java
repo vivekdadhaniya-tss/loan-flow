@@ -7,10 +7,7 @@ import com.loanflow.entity.EmiSchedule;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.Payment;
 import com.loanflow.entity.user.User;
-import com.loanflow.enums.EmiStatus;
-import com.loanflow.enums.EntityType;
-import com.loanflow.enums.LoanStatus;
-import com.loanflow.enums.Role;
+import com.loanflow.enums.*;
 import com.loanflow.event.PaymentReceivedEvent;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
@@ -18,12 +15,16 @@ import com.loanflow.exception.UnauthorizedAccessException;
 import com.loanflow.mapper.PaymentMapper;
 import com.loanflow.repository.EmiScheduleRepository;
 import com.loanflow.repository.LoanRepository;
+import com.loanflow.repository.OverdueTrackerRepository;
 import com.loanflow.repository.PaymentRepository;
 import com.loanflow.service.AuditService;
+import com.loanflow.service.LoanService;
 import com.loanflow.service.PaymentService;
+import com.loanflow.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.el.lang.ELArithmetic;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -37,99 +38,101 @@ import java.math.BigDecimal;
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository paymentRepository;
-    private final PaymentMapper paymentMapper;
-    private final LoanRepository loanRepository;
     private final EmiScheduleRepository emiScheduleRepository;
+    private final PaymentRepository paymentRepository;
+    private final OverdueTrackerRepository overdueTrackerRepository;
+    private final LoanRepository loanRepository;
+    private final LoanService loanService;
     private final AuditService auditService;
-
-    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
+    private final PaymentMapper paymentMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
     public PaymentResponse simulatePayment(PaymentSimulationRequest request, User borrower) {
 
-        // 1. Fetch the exact EMI Schedule
-        EmiSchedule schedule = emiScheduleRepository.findById(request.getEmiScheduleId())
-                .orElseThrow(() -> new ResourceNotFoundException("EMI Schedule not found."));
+        EmiSchedule emi = emiScheduleRepository
+                .findById(request.getEmiScheduleId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "EMI Schedule ot found: " + request.getEmiScheduleId()));
 
-        Loan loan= schedule.getLoan();
+        // Guard 1: EMI must not already be paid
+        ValidationUtil.ensureEmiNotAlreadyPaid(emi);
 
-        // 2. Security Check: Ensure the borrower actually owns this loan
-        if(!loan.getBorrower().getId().equals((borrower.getId()))){
-            log.warn("User {} attempted to pay an EMI for a loan they do not own.", borrower.getEmail());
-            throw new UnauthorizedAccessException("You are not authorized to make payments on this loan.");
-        }
+        // Guard 2: Loan must be ACTIVE
+        ValidationUtil.ensureLoanIsActive(emi.getLoan());
 
-        // 3. Business Rule: Prevent double payments
-        // (Assuming your schedule entity uses an enum like ScheduleStatus.PAID)
-        if (EmiStatus.PAID.equals(schedule.getStatus())) {
-            throw new BusinessRuleException("This EMI installment has already been paid.");
-        }
+        // capture old status for audit log
+        String oldEmiStatus = emi.getStatus().name();
 
-        // 4. Create the Payment Record
+        // mark EMI as paid
+        emi.setStatus(EmiStatus.PAID);
+        emi.setPaidAt(LocalDateTime.now());
+        emiScheduleRepository.save(emi);
+
+        // create payment record
         Payment payment = new Payment();
-        payment.setLoan(loan);
-        payment.setEmiSchedule(schedule);
+        payment.setEmiSchedule(emi);
+        payment.setLoan(emi.getLoan());
         payment.setBorrower(borrower);
-        payment.setPaidAmount(schedule.getTotalEmiAmount());
-        payment.setPaidAt(LocalDateTime.now());
+        payment.setPaidAmount(emi.getTotalEmiAmount());
         payment.setPaymentMode("SIMULATION");
-
+        payment.setPaidAt(LocalDateTime.now());
         payment.setReceiptNumber(generateReceiptNumber());
+        Payment saved = paymentRepository.save(payment);
 
-        paymentRepository.save(payment);
+        // if emi was overdue - resolve the tracker and penalty
+        if (EmiStatus.OVERDUE.name().equals(oldEmiStatus)) {
+            overdueTrackerRepository.findByEmiSchedule(emi)
+                    .ifPresent(tracker -> {
+                        tracker.setResolvedAt(LocalDateTime.now());
+                        tracker.setPenaltyStatus(PenaltyStatus.SETTLED);
+                        overdueTrackerRepository.save(tracker);
 
-        schedule.setStatus(EmiStatus.PAID);
-        emiScheduleRepository.save(schedule);
-
-        // 6. Update the Main Loan Balances
-        // Deduct only the principal component of the EMI from the outstanding balance
-        BigDecimal newOutstanding = loan.getOutstandingPrincipal().subtract(schedule.getPrincipalAmount());
-        loan.setOutstandingPrincipal(newOutstanding);
-
-        if(newOutstanding.compareTo(BigDecimal.ZERO) <= 0){
-            loan.setStatus(LoanStatus.CLOSED);
-            log.info("Loan {} has been fully paid off and is now CLOSED.", loan.getLoanNumber());
+                        // decrement overdue count on loan
+                        emi.getLoan().setOverDueCount(
+                                Math.max(0, emi.getLoan().getOverDueCount() - 1));
+                        loanRepository.save(emi.getLoan());
+                    });
         }
-        loanRepository.save(loan);
 
         auditService.log(AuditRequest.builder()
-                .entityType(EntityType.PAYMENT)
-                .entityId(payment.getId())
-                .action("COMPLETED")
-                .oldStatus(null)
-                .newStatus("SUCCESS")
+                .entityType(EntityType.EMI_SCHEDULE)
+                .entityId(emi.getId())
+                .action("MARKED_PAID")
+                .oldStatus(oldEmiStatus)
+                .newStatus(EmiStatus.PAID.name())
                 .performedBy(borrower)
-                .actorRole(Role.BORROWER)
-                .remarks("EMI Payment simulated successfully via portal.")
+                .actorRole(borrower.getRole())
+                .remarks("Payment simulated. Amount: " + emi.getTotalEmiAmount())
                 .build());
 
-        eventPublisher.publishEvent(new PaymentReceivedEvent(payment, schedule));
+        // fire event -> listener sends EMI_PAID email
+        applicationEventPublisher.publishEvent(new PaymentReceivedEvent(saved, emi));
 
-        return paymentMapper.toResponse(payment);
+        // check all emis paid -> loan closed
+        loanService.closeLoanIfCompleted(emi.getLoan());
 
+        log.info("Payment simulated for installment {} of loan {}",
+                emi.getInstallmentNumber(), emi.getLoan().getId());
+
+        return paymentMapper.toResponse(saved);
     }
 
 
-    /**
-     * Generates a unique, chronological receipt number for a payment.
-     * Example: RCP-20260329-00001
-     */
     private String generateReceiptNumber() {
         Long seqVal = paymentRepository.getNextReceiptSequence();
-        String datePrefix = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        // Pads the sequence with up to 5 zeros for a clean, professional look
-        String paddedSequence = String.format("%05d", seqVal);
+        if (seqVal == null)
+            throw new IllegalStateException("Failed to generate receipt number sequence");
 
-        return "RCP-" + datePrefix + "-" + paddedSequence;
+        String datePrefix = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // yyyyMMdd
+        return String.format("RCP-%s-%05d", datePrefix, seqVal);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PaymentResponse> getPaymentsByLoanNumber(String loanNumber) {
-        // Fetch payments using the business key, ordered by latest first
         List<Payment> payments = paymentRepository.findByLoan_LoanNumberOrderByPaidAtDesc(loanNumber);
 
         return payments.stream()
