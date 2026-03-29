@@ -27,7 +27,7 @@ public interface LoanRepository extends JpaRepository<Loan , UUID> {
             WHERE l.borrower.id = :borrowerId
             AND l.status = 'ACTIVE'
             """)
-    Optional<BigDecimal> sumActiveMonthlyEmi(@Param("borrowerId") UUID borrowerId);
+    Optional<BigDecimal> sumActiveMonthlyEmiByBorrower(@Param("borrowerId") UUID borrowerId);
     // Sum of monthly EMI across all ACTIVE loans for this borrower
     // Used by DtiCalculationService as Internal EMI
 

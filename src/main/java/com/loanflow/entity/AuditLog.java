@@ -2,6 +2,8 @@ package com.loanflow.entity;
 
 import com.loanflow.entity.base.BaseEntity;
 import com.loanflow.entity.user.User;
+import com.loanflow.enums.EntityType;
+import com.loanflow.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -24,11 +26,11 @@ import java.util.UUID;
 public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     @NotBlank
     @Column(name = "entity_type", nullable = false)
-    private String entityType;
+    private EntityType entityType;
 
     @Column(name = "entity_id", nullable = false)
     private UUID entityId;
@@ -52,9 +54,13 @@ public class AuditLog {
     @JoinColumn(name = "performed_by")
     private User performedBy;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Role actorRole;
+
     @Column(length = 1000)
     private String remarks;
 
-     @Column(name = "created_at", nullable = false, updatable = false)
-     private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

@@ -5,7 +5,7 @@ import com.loanflow.dto.response.LoanApplicationResponse;
 import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.BorrowerProfile;
 import com.loanflow.entity.user.User;
-import com.loanflow.enums.BureauStatus;
+import com.loanflow.enums.*;
 import com.loanflow.integration.CreditBureauClient;
 import com.loanflow.integration.CreditBureauService;
 import com.loanflow.integration.CreditBureauServiceImpl;
@@ -20,9 +20,6 @@ import java.time.format.DateTimeFormatter;
 
 
 import com.loanflow.constants.LoanConstants;
-import com.loanflow.enums.ApplicationStatus;
-import com.loanflow.enums.LoanStatus;
-import com.loanflow.enums.LoanStrategy;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
 import com.loanflow.integration.dto.CreditBureauResponse;
@@ -122,13 +119,13 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
         // 7. Audit Logging
         auditService.log(
-                "LOAN_APPLICATION",
+                EntityType.LOAN_APPLICATION,
                 savedApplication.getId(),
                 "SUBMITTED",
                 null,
                 savedApplication.getStatus().name(),
                 currentBorrower,
-                "BORROWER",
+                Role.BORROWER,
                 "Application submitted via portal."
         );
 
@@ -159,13 +156,13 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         loanApplicationRepository.save(application);
 
         auditService.log(
-                "LOAN_APPLICATION",
+                EntityType.LOAN_APPLICATION,
                 application.getId(),
                 "CANCELLED",
                 oldStatus,
                 ApplicationStatus.CANCELLED.name(),
                 borrower,
-                "BORROWER",
+                Role.BORROWER,
                 "Application cancelled by borrower."
         );
 
