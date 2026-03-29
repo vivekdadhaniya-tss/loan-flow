@@ -5,9 +5,8 @@ import com.loanflow.entity.base.BaseEntity;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.LoanStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,7 +14,11 @@ import java.time.LocalDateTime;
         name = "loan_status_history",
         indexes = @Index(name = "idx_lsh_loan" , columnList = "loan_id")
 )
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoanStatusHistory extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,7 +28,7 @@ public class LoanStatusHistory extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LoanStatus loanStatus;
+    private LoanStatus oldStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -6,10 +6,14 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AuditLogResponse {
 
-    private UUID id;
+    private Long id;
     private EntityType entityType;
     private UUID entityId;
     private String action;

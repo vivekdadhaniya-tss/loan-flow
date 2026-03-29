@@ -10,7 +10,7 @@ public final class LoanConstants {
 
     private LoanConstants() {}
 
-    // ── DTI thresholds ─────────────────────────────────────────────
+    // DTI thresholds
     // Used by: DtiCalculationService.suggestStrategy()
 
     /** DTI below this → FLAT_RATE_LOAN suggested */
@@ -24,7 +24,7 @@ public final class LoanConstants {
     /** Tenure < this (months) → REDUCING_BALANCE; ≥ this → STEP_UP_EMI */
     public static final int STEP_UP_TENURE_THRESHOLD = 24;
 
-    // ── Loan limits ────────────────────────────────────────────────
+    // Loan limits
     // Used by: LoanApplicationService.apply()
 
     /** A borrower may not hold more than this many active loans */
@@ -40,14 +40,14 @@ public final class LoanConstants {
     /** Maximum loan tenure in months (30 years) */
     public static final int MAX_TENURE_MONTHS = 360;
 
-    // ── Interest rate limits ───────────────────────────────────────
+    // Interest rate limits
     // Used by: LoanDecisionRequest validation, LoanService
 
     /** Maximum interest rate an officer may set (per annum) */
     public static final BigDecimal MAX_INTEREST_RATE_PA =
             new BigDecimal("36.00");
 
-    // ── Step-Up EMI ────────────────────────────────────────────────
+    // Step-Up EMI
     // Used by: StepUpEmiStrategy.generateSchedule()
 
     /**
@@ -58,12 +58,22 @@ public final class LoanConstants {
     public static final BigDecimal STEP_UP_ANNUAL_RATE =
             new BigDecimal("1.05");
 
-    // ── Overdue & penalty ──────────────────────────────────────────
+    // Overdue & penalty
     // Used by: OverdueMonitorService.scanAndMarkOverdue()
 
     /** Flat penalty amount applied per missed EMI (in INR) */
     public static final BigDecimal LATE_FEE_FLAT_AMOUNT =
             new BigDecimal("500.00");
+
+    // Daily penalty rate (0.05% per day)
+    public static final BigDecimal OVERDUE_DAILY_PENALTY_RATE =
+            new BigDecimal("0.0005");
+
+    // Grace period before daily penalty applies
+    public static final int PENALTY_GRACE_DAYS = 30;
+
+    // Days after which loan becomes DEFAULTED (NPA standard)
+    public static final int DEFAULT_THRESHOLD_DAYS = 90;
 
     /**
      * Number of days a loan stays DEFAULTED before transitioning
@@ -71,7 +81,7 @@ public final class LoanConstants {
      */
     public static final int WRITTEN_OFF_DAYS = 180;
 
-    // ── Notification ───────────────────────────────────────────────
+    // Notification
     // Used by: NotificationRetryScheduler, PaymentReminderScheduler
 
     /** Maximum send attempts before a notification stays FAILED */
@@ -83,7 +93,7 @@ public final class LoanConstants {
      */
     public static final int PAYMENT_REMINDER_DAYS_BEFORE = 3;
 
-    // ── Credit Bureau ──────────────────────────────────────────────
+    // Credit Bureau
     // Used by: LoanApplicationService, LoanApplication entity
 
     /** Value stored in LoanApplication.bureauStatus when report was fetched */
@@ -92,7 +102,7 @@ public final class LoanConstants {
     /** Value stored in LoanApplication.bureauStatus when bureau was down */
     public static final String BUREAU_STATUS_UNAVAILABLE = "UNAVAILABLE";
 
-    // ── Audit actor roles ──────────────────────────────────────────
+    // Audit actor roles
     // Used by: AuditService.log() calls across all services
 
     public static final String ACTOR_BORROWER      = "BORROWER";

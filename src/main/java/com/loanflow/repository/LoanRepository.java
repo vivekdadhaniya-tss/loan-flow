@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,6 +33,9 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
     List<Loan> findByBorrowerAndStatus(User Borrower, LoanStatus status);
 
     List<Loan> findByBorrowerOrderByCreatedAtDesc(User Borrower);
+
+    // Used by OverdueMonitorService.scanAndMarkWrittenOff()
+    List<Loan> findByStatusAndUpdatedAtBefore(LoanStatus status, LocalDateTime cutoff);
 
     @Query("""
             SELECT SUM(l.monthlyEmi) FROM Loan l

@@ -53,14 +53,11 @@ public class OverdueTracker extends BaseEntity {
     private PenaltyStatus penaltyStatus;
 
     @Column(nullable = false)
-    @Min(0) @Max(90)
+    @Min(0)
     private Integer daysOverdue = 0;
 
     @Column(nullable = false)
     private Integer alertCount = 0;
-
-    @Column(nullable = false)
-    private Boolean alertSent = false;
 
     @Column(nullable = false)
     private LocalDateTime detectedAt;

@@ -148,7 +148,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .action("SUBMITTED")
                 .newStatus("PENDING")
                 .performedBy(currentBorrower)
-                .actorRole(Role.BORROWER)
+                .actorRole(currentBorrower.getRole())
                 .build());
 
 //        eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(saved));
@@ -161,10 +161,12 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
     private String generateApplicationNumber() {
         Long seqVal = loanApplicationRepository.getNextApplicationSequence();
-        String datePrefix = LocalDate.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        return "APP-" + datePrefix + "-" + seqVal;
+        if (seqVal == null)
+            throw new IllegalStateException("Failed to generate application number sequence");
+
+        String datePrefix = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // yyyyMMdd
+        return String.format("APP-%s-%06d", datePrefix, seqVal);
     }
 
 
