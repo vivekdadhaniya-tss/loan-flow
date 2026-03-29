@@ -124,8 +124,9 @@ public class BorrowerController {
 //
 //        // Ensure the borrower actually owns this loan before returning the schedule.
 //        // You will need a method in LoanService like verifyOwnership(loanNumber, borrowerId)
-//        if (!securityUtils.isOwner(borrower.getId())) {
-//            throw new SecurityException("You are not authorized to view this loan schedule.");
+//        if (  securityUtils.hasRole("BORROWER")
+//              &&  !securityUtils.isOwner(borrower.getId())) {
+//            throw new SecurityException("You can only view your own loan schedule.");
 //        }
 //
 //        // Changed to find the schedule by the String loanNumber instead of UUID

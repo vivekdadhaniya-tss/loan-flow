@@ -3,8 +3,10 @@ package com.loanflow.repository;
 import com.loanflow.entity.EmiSchedule;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.OverdueTracker;
+import com.loanflow.enums.PenaltyStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -28,11 +30,11 @@ public interface OverdueTrackerRepository extends JpaRepository<OverdueTracker, 
 
     // Total outstanding penalty for officer dashboard
     @Query("""
-           SELECT COALESCE(SUM(t.penaltyAmount), 0)
-           FROM OverdueTracker t
-           WHERE t.penaltyStatus = false
-           """)
-    BigDecimal sumOutstandingPenalty();
+       SELECT COALESCE(SUM(t.fixedPenaltyAmount), 0)
+       FROM OverdueTracker t
+       WHERE t.penaltyStatus = :status
+       """)
+    BigDecimal sumOutstandingPenalty(@Param("status") PenaltyStatus status);
 
     // Longest overdue in days — officer dashboard
     @Query("""

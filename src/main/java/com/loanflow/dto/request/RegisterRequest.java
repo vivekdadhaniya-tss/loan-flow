@@ -2,6 +2,7 @@ package com.loanflow.dto.request;
 
 
 import com.loanflow.entity.Address;
+import com.loanflow.enums.AdminAccessLevel;
 import com.loanflow.enums.Role;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -43,7 +44,7 @@ public class RegisterRequest {
     // ── Officer-specific (required when role = LOAN_OFFICER) ──
     private String employeeId;
 
-    private String department;
+    private String designation;
 
     @Positive
     private Integer loansApprovedCount;
@@ -51,6 +52,10 @@ public class RegisterRequest {
     @Positive
     private Integer loansRejectedCount;
 //    private BigDecimal maxApprovalLimit;
+
+    // ── Admin-specific (required when role = ADMIN) ──
+    private AdminAccessLevel accessLevel;
+
 }
 
 
