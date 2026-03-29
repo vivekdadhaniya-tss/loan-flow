@@ -27,6 +27,7 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
     private final LoanRepository loanRepository;
     private final EmiScheduleMapper emiScheduleMapper;
 
+    @Override
     @Transactional
     public BigDecimal generateSchedule(Loan loan, EmiCalculationStrategy strategy) {
         List<EmiSchedule> schedule = strategy.generateEmiSchedule(loan);
@@ -35,6 +36,7 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
         return schedule.get(0).getTotalEmiAmount();   // return first EMI amount as reference
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<EmiScheduleResponse> getScheduleByLoan(UUID loanId) {
         Loan loan = loanRepository.findById(loanId)

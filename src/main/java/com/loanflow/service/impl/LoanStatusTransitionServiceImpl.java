@@ -27,6 +27,7 @@ public class LoanStatusTransitionServiceImpl implements LoanStatusTransitionServ
             LoanStatus.WRITTEN_OFF, Set.of()    // terminal
     );
 
+    @Override
     public void transition(
             Loan loan, LoanStatus newStatus,
             User changeBy, String reason) {
