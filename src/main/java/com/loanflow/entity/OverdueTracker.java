@@ -16,9 +16,7 @@ import java.time.*;
 @Entity
 @Table(
         name = "overdue_tracker",
-//        indexes = @Index(columnList = "alert_sent, resolved_at")
         indexes = @Index(columnList = "last_alert_at, resolved_at")
-
 )
 @Getter
 @Setter

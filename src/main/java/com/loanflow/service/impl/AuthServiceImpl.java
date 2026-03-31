@@ -64,6 +64,7 @@ public class AuthServiceImpl implements AuthService {
                 a.setAccessLevel(req.getAccessLevel());
                 yield a;
             }
+
         };
 
         // set common fields
