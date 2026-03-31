@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class Borrower extends User {
 
-
     @NotBlank
     @Column(nullable = false, unique = true)
     private String panNumber;

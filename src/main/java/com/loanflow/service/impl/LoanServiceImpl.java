@@ -52,12 +52,12 @@ public class LoanServiceImpl implements LoanService {
     @Override
     // officer approve or reject loan application
     public LoanResponse processDecision(
-            UUID applicationId, LoanDecisionRequest request, User officer) {
+            String applicationNumber, LoanDecisionRequest request, User officer) {
 
         // 1. Fetch application and validate
         LoanApplication application = loanApplicationRepository
-                .findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Loan Application not found: " + applicationId));
+                .findByApplicationNumber(applicationNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Loan Application not found: " + applicationNumber));
 
         ValidationUtil.ensureApplicationIsReviewable(application);
 

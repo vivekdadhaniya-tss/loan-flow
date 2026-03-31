@@ -11,9 +11,13 @@ import java.util.UUID;
 public interface LoanService {
 
     // Officer processes loan application (approve/reject)
-    LoanResponse processDecision(UUID applicationId,
-                                 LoanDecisionRequest request,
-                                 User officer);
+//    LoanResponse processDecision(UUID applicationId,
+//                                 LoanDecisionRequest request,
+//                                 User officer);
+
+    // officer approve or reject loan application
+    LoanResponse processDecision(
+            String applicationNumber, LoanDecisionRequest request, User officer);
 
     // Close loan when all EMIs are paid
     void closeLoanIfCompleted(Loan loan);
