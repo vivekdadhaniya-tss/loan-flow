@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
         name = "loan_applications" ,
         indexes = {
                 @Index(name = "idx_loan_application_number", columnList = "application_number"),
-                @Index(name = "idx_borrower", columnList = "borrower_id"),
-                @Index(name = "idx_status", columnList = "status")
+                @Index(name = "idx_app_borrower", columnList = "borrower_id"),
+                @Index(name = "idx_app_status", columnList = "status")
         }
 )
 @Getter
@@ -70,6 +70,7 @@ public class LoanApplication extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private LoanStrategy finalStrategy;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApplicationStatus status = ApplicationStatus.PENDING;
