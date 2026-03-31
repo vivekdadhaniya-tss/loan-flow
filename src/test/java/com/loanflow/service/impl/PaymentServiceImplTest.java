@@ -70,17 +70,17 @@ class PaymentServiceImplTest {
     private Loan activeLoan;
     private EmiSchedule testEmi;
     private PaymentSimulationRequest request;
-    private final UUID emiId = UUID.randomUUID();
+    private final Long emiId = 200L;
     private final String loanNumber = "LN-123456";
 
     @BeforeEach
     void setUp() {
         borrower = new Borrower();
-        borrower.setId(UUID.randomUUID());
+        borrower.setId(100L);
         borrower.setRole(Role.BORROWER);
 
         activeLoan = new Loan();
-        activeLoan.setId(UUID.randomUUID());
+        activeLoan.setId(200L);
         activeLoan.setBorrower(borrower);
         activeLoan.setStatus(LoanStatus.ACTIVE);
         activeLoan.setOverDueCount(0);

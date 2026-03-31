@@ -57,11 +57,11 @@ class NotificationServiceImplTest {
     @BeforeEach
     void setUp() {
         recipient = new User();
-        recipient.setId(UUID.randomUUID());
+        recipient.setId(100L);
         recipient.setEmail("borrower@example.com");
 
         loan = new Loan();
-        loan.setId(UUID.randomUUID());
+        loan.setId(200L);
 
         // The Magic Trick: Create a real MimeMessage with an empty session to prevent NPEs in MimeMessageHelper
         Session session = Session.getInstance(new Properties());

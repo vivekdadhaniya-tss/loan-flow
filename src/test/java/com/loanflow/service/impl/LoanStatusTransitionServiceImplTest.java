@@ -40,10 +40,10 @@ class LoanStatusTransitionServiceImplTest {
     @BeforeEach
     void setUp() {
         testLoan = new Loan();
-        testLoan.setId(UUID.randomUUID());
+        testLoan.setId(100L);
 
         testUser = new User();
-        testUser.setId(UUID.randomUUID());
+        testUser.setId(200L);
         testUser.setEmail("officer@loanflow.com");
     }
 

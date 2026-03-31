@@ -75,20 +75,24 @@ class LoanServiceImplTest {
     private User officer;
     private Borrower borrower;
     private LoanApplication application;
-    private final UUID appId = UUID.randomUUID();
+
+    // Updated to use Application Number (String) and Loan ID (Long)
+    private final String appNumber = "APP-20260331-001014";
+    private final Long testLoanId = 100L;
 
     @BeforeEach
     void setUp() {
         officer = new User();
-        officer.setId(UUID.randomUUID());
+        officer.setId(100L);
         officer.setRole(Role.LOAN_OFFICER);
 
         borrower = new Borrower();
-        borrower.setId(UUID.randomUUID());
+        borrower.setId(200L);
         borrower.setRole(Role.BORROWER);
 
         application = new LoanApplication();
-        application.setId(appId);
+        application.setId(300L);
+        application.setApplicationNumber(appNumber);
         application.setBorrower(borrower);
         application.setStatus(ApplicationStatus.UNDER_REVIEW); // Valid status for ValidationUtil
         application.setRequestedAmount(new BigDecimal("500000"));
@@ -106,10 +110,11 @@ class LoanServiceImplTest {
         request.setApproved(false);
         request.setRejectionReason("Credit score too low");
 
-        when(loanApplicationRepository.findById(appId)).thenReturn(Optional.of(application));
+        // FIX: Now querying by applicationNumber
+        when(loanApplicationRepository.findByApplicationNumber(appNumber)).thenReturn(Optional.of(application));
 
         // Act
-        LoanResponse response = loanService.processDecision(appId, request, officer);
+        LoanResponse response = loanService.processDecision(appNumber, request, officer);
 
         // Assert
         assertThat(response).isNull(); // Rejection returns null
@@ -126,53 +131,56 @@ class LoanServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should successfully approve application, create loan, generate EMIs, audit, and fire event")
+    @DisplayName("Should successfully approve application, calculate Base EMI, create loan, generate EMIs, audit, and fire event")
     void processDecision_Approve_Success() {
         // Arrange
         LoanDecisionRequest request = new LoanDecisionRequest();
         request.setApproved(true);
         request.setInterestRatePerAnnum(new BigDecimal("10.5"));
-        // Override strategy not provided, should fallback to suggested strategy (REDUCING_BALANCE_LOAN)
 
-        when(loanApplicationRepository.findById(appId)).thenReturn(Optional.of(application));
+        when(loanApplicationRepository.findByApplicationNumber(appNumber)).thenReturn(Optional.of(application));
         when(loanRepository.sumActiveMonthlyEmi(borrower.getId())).thenReturn(Optional.of(BigDecimal.ZERO));
         when(loanRepository.getNextLoanSequence()).thenReturn(1001L);
 
         Loan mockSavedLoan = new Loan();
-        mockSavedLoan.setId(UUID.randomUUID());
-        when(loanRepository.save(any(Loan.class))).thenReturn(mockSavedLoan); // For the initial save
+        mockSavedLoan.setId(testLoanId); // Updated to Long
 
         when(loanStrategyFactory.resolve(LoanStrategy.REDUCING_BALANCE_LOAN)).thenReturn(emiCalculationStrategy);
-        when(emiScheduleService.generateSchedule(mockSavedLoan, emiCalculationStrategy)).thenReturn(new BigDecimal("23000"));
+
+        // FIX: Mock the new calculateBaseEmi call that runs BEFORE saving the loan
+        when(emiCalculationStrategy.calculateBaseEmi(any(Loan.class))).thenReturn(new BigDecimal("23000"));
+
+        when(loanRepository.save(any(Loan.class))).thenReturn(mockSavedLoan);
         when(dtiCalculationService.calculateFinalDti(any(), any(), any(), any())).thenReturn(new BigDecimal("35.5"));
 
         LoanResponse expectedResponse = new LoanResponse();
         when(loanMapper.toResponse(mockSavedLoan)).thenReturn(expectedResponse);
 
         // Act
-        LoanResponse response = loanService.processDecision(appId, request, officer);
+        LoanResponse response = loanService.processDecision(appNumber, request, officer);
 
         // Assert
         assertThat(response).isNotNull();
 
-        // Verify Application Status update
         verify(loanApplicationRepository).save(application);
         assertThat(application.getStatus()).isEqualTo(ApplicationStatus.APPROVED);
 
-        // Verify Loan Creation details via Captor
         verify(loanRepository, atLeastOnce()).save(loanCaptor.capture());
-        Loan createdLoan = loanCaptor.getAllValues().get(0); // The first save before schedule generation
+        Loan createdLoan = loanCaptor.getAllValues().get(0);
 
         assertThat(createdLoan.getApprovedAmount()).isEqualByComparingTo("500000");
         assertThat(createdLoan.getInterestRatePerAnnum()).isEqualByComparingTo("10.5");
         assertThat(createdLoan.getStrategy()).isEqualTo(LoanStrategy.REDUCING_BALANCE_LOAN);
         assertThat(createdLoan.getStatus()).isEqualTo(LoanStatus.ACTIVE);
-        assertThat(createdLoan.getLoanNumber()).contains("LN-"); // Check sequence prefix format
+        assertThat(createdLoan.getLoanNumber()).contains("LN-");
 
-        // Verify Audits (2 audits: 1 for App Approved, 1 for Loan Created)
+        // Verify that the EMI was correctly populated BEFORE the save to prevent database crashes
+        assertThat(createdLoan.getMonthlyEmi()).isEqualByComparingTo("23000");
+
+        // Verify the schedule was generated on the saved loan
+        verify(emiScheduleService).generateSchedule(mockSavedLoan, emiCalculationStrategy);
+
         verify(auditService, times(2)).log(any(AuditRequest.class));
-
-        // Verify Event Published
         verify(eventPublisher).publishEvent(any(LoanDecisionEvent.class));
     }
 
@@ -180,16 +188,16 @@ class LoanServiceImplTest {
     @DisplayName("Should throw BusinessRuleException if approved but no valid strategy exists")
     void processDecision_Approve_ThrowsExceptionWhenNoStrategy() {
         // Arrange
-        application.setSuggestedStrategy(null); // No strategy suggested
+        application.setSuggestedStrategy(null);
 
         LoanDecisionRequest request = new LoanDecisionRequest();
         request.setApproved(true);
-        request.setOverrideStrategy(null); // No override provided
+        request.setOverrideStrategy(null);
 
-        when(loanApplicationRepository.findById(appId)).thenReturn(Optional.of(application));
+        when(loanApplicationRepository.findByApplicationNumber(appNumber)).thenReturn(Optional.of(application));
 
         // Act & Assert
-        assertThatThrownBy(() -> loanService.processDecision(appId, request, officer))
+        assertThatThrownBy(() -> loanService.processDecision(appNumber, request, officer))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("No valid loan strategy available");
 
@@ -199,9 +207,9 @@ class LoanServiceImplTest {
     @Test
     @DisplayName("Should throw ResourceNotFoundException when application does not exist")
     void processDecision_ThrowsNotFound() {
-        when(loanApplicationRepository.findById(appId)).thenReturn(Optional.empty());
+        when(loanApplicationRepository.findByApplicationNumber(appNumber)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> loanService.processDecision(appId, new LoanDecisionRequest(), officer))
+        assertThatThrownBy(() -> loanService.processDecision(appNumber, new LoanDecisionRequest(), officer))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Loan Application not found");
     }
@@ -211,7 +219,7 @@ class LoanServiceImplTest {
     void closeLoanIfCompleted_WhenZeroUnpaid_ClosesLoan() {
         // Arrange
         Loan loan = new Loan();
-        loan.setId(UUID.randomUUID());
+        loan.setId(testLoanId);
         loan.setStatus(LoanStatus.ACTIVE);
 
         when(emiScheduleRepository.countByLoanAndStatusNot(any(), any())).thenReturn(0L);
@@ -231,7 +239,7 @@ class LoanServiceImplTest {
     void closeLoanIfCompleted_WhenHasUnpaid_DoesNothing() {
         // Arrange
         Loan loan = new Loan();
-        when(emiScheduleRepository.countByLoanAndStatusNot(any(), any())).thenReturn(5L); // 5 unpaid EMIs left
+        when(emiScheduleRepository.countByLoanAndStatusNot(any(), any())).thenReturn(5L);
 
         // Act
         loanService.closeLoanIfCompleted(loan);
@@ -262,12 +270,12 @@ class LoanServiceImplTest {
     @DisplayName("Should return loan when found by ID")
     void findById_Success() {
         // Arrange
-        UUID loanId = UUID.randomUUID();
         Loan loan = new Loan();
-        when(loanRepository.findById(loanId)).thenReturn(Optional.of(loan));
+        loan.setId(testLoanId);
+        when(loanRepository.findById(testLoanId)).thenReturn(Optional.of(loan));
 
         // Act
-        Loan result = loanService.findById(loanId);
+        Loan result = loanService.findById(testLoanId);
 
         // Assert
         assertThat(result).isEqualTo(loan);
@@ -277,12 +285,40 @@ class LoanServiceImplTest {
     @DisplayName("Should throw ResourceNotFoundException when loan ID is not found")
     void findById_ThrowsNotFound() {
         // Arrange
-        UUID loanId = UUID.randomUUID();
-        when(loanRepository.findById(loanId)).thenReturn(Optional.empty());
+        when(loanRepository.findById(testLoanId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> loanService.findById(loanId))
+        assertThatThrownBy(() -> loanService.findById(testLoanId))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Loan not found: " + loanId);
+                .hasMessageContaining("Loan not found: " + testLoanId);
+    }
+
+    @Test
+    @DisplayName("Should return loan when found by Loan Number")
+    void findByLoanNumber_Success() {
+        // Arrange
+        String lnNumber = "LN-123456";
+        Loan loan = new Loan();
+        loan.setLoanNumber(lnNumber);
+        when(loanRepository.findByLoanNumber(lnNumber)).thenReturn(Optional.of(loan));
+
+        // Act
+        Loan result = loanService.findByLoanNumber(lnNumber);
+
+        // Assert
+        assertThat(result).isEqualTo(loan);
+    }
+
+    @Test
+    @DisplayName("Should throw ResourceNotFoundException when loan Number is not found")
+    void findByLoanNumber_ThrowsNotFound() {
+        // Arrange
+        String lnNumber = "LN-123456";
+        when(loanRepository.findByLoanNumber(lnNumber)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThatThrownBy(() -> loanService.findByLoanNumber(lnNumber))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Loan not found: " + lnNumber);
     }
 }

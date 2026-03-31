@@ -62,17 +62,17 @@ class OverdueMonitorServiceImplTest {
     @BeforeEach
     void setUp() {
         Borrower borrower = new Borrower();
-        borrower.setId(UUID.randomUUID());
+        borrower.setId(100L);
 
         activeLoan = new Loan();
-        activeLoan.setId(UUID.randomUUID());
+        activeLoan.setId(100L);
         activeLoan.setBorrower(borrower);
         activeLoan.setStatus(LoanStatus.ACTIVE);
         activeLoan.setOverDueCount(0);
         activeLoan.setLoanNumber("LN-12345");
 
         testEmi = new EmiSchedule();
-        testEmi.setId(UUID.randomUUID());
+        testEmi.setId(500L);
         testEmi.setLoan(activeLoan);
         testEmi.setStatus(EmiStatus.PENDING);
         testEmi.setTotalEmiAmount(new BigDecimal("15000.00")); // Updated field for penalty calculation
@@ -196,7 +196,7 @@ class OverdueMonitorServiceImplTest {
     void scanAndMarkWrittenOff_Success() {
         // Arrange
         Loan defaultedLoan = new Loan();
-        defaultedLoan.setId(UUID.randomUUID());
+        defaultedLoan.setId(400L);
         defaultedLoan.setStatus(LoanStatus.DEFAULTED);
 
         when(loanRepository.findByStatusAndUpdatedAtBefore(eq(LoanStatus.DEFAULTED), any(LocalDateTime.class)))

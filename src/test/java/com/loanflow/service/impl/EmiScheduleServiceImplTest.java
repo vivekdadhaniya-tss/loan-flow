@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -45,7 +44,9 @@ class EmiScheduleServiceImplTest {
     private EmiScheduleServiceImpl emiScheduleService;
 
     private Loan testLoan;
-    private final UUID loanId = UUID.randomUUID();
+
+    // FIX: Changed from UUID to Long to match updated Loan entity
+    private final Long loanId = 100L;
     private final String loanNumber = "LN-123456";
 
     @BeforeEach

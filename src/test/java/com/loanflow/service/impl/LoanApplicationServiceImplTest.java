@@ -65,7 +65,7 @@ class LoanApplicationServiceImplTest {
     @BeforeEach
     void setUp() {
         testBorrower = new Borrower();
-        testBorrower.setId(UUID.randomUUID());
+        testBorrower.setId(100L);
         testBorrower.setPanNumber("ABCDE1234F");
         testBorrower.setRole(Role.BORROWER);
 
@@ -122,7 +122,7 @@ class LoanApplicationServiceImplTest {
         when(loanApplicationRepository.getNextApplicationSequence()).thenReturn(1L);
 
         LoanApplication savedApp = new LoanApplication();
-        savedApp.setId(UUID.randomUUID());
+        savedApp.setId(400L);
         when(loanApplicationRepository.save(any(LoanApplication.class))).thenReturn(savedApp);
 
         // Act
@@ -156,7 +156,7 @@ class LoanApplicationServiceImplTest {
         when(loanApplicationRepository.getNextApplicationSequence()).thenReturn(123L);
 
         LoanApplication savedApp = new LoanApplication();
-        savedApp.setId(UUID.randomUUID());
+        savedApp.setId(500L);
         savedApp.setStatus(ApplicationStatus.PENDING);
 
         when(loanApplicationRepository.save(any(LoanApplication.class))).thenReturn(savedApp);
@@ -183,7 +183,7 @@ class LoanApplicationServiceImplTest {
     void cancelApplication_Success() {
         // Arrange
         LoanApplication application = new LoanApplication();
-        application.setId(UUID.randomUUID());
+        application.setId(400L);
         application.setBorrower(testBorrower);
         application.setStatus(ApplicationStatus.PENDING); // Status must be PENDING to pass ValidationUtil
 
@@ -203,7 +203,7 @@ class LoanApplicationServiceImplTest {
     void cancelApplication_Unauthorized() {
         // Arrange
         User anotherUser = new Borrower();
-        anotherUser.setId(UUID.randomUUID()); // Different ID than testBorrower
+        anotherUser.setId(400L); // Different ID than testBorrower
 
         LoanApplication application = new LoanApplication();
         application.setBorrower(anotherUser);
