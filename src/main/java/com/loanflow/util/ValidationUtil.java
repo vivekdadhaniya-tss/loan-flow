@@ -28,13 +28,13 @@ public final class ValidationUtil {
      * This is the service-layer guard — the DB-level guard is the
      * unique constraint on Payment.emiSchedule.
      */
-    public static void ensureEmiNotAlreadyPaid(EmiSchedule emiSchedule) {
-        if (emiSchedule.getStatus() == EmiStatus.PAID) {
-            throw new BusinessRuleException(
-                    "Installment " + emiSchedule.getInstallmentNumber()
-                            + " is already marked as paid.");
-        }
-    }
+//    public static void ensureEmiNotAlreadyPaid(EmiSchedule emiSchedule) {
+//        if (emiSchedule.getStatus() == EmiStatus.PAID) {
+//            throw new BusinessRuleException(
+//                    "Installment " + emiSchedule.getInstallmentNumber()
+//                            + " is already marked as paid.");
+//        }
+//    }
 
     /**
      * Ensures the loan is ACTIVE before accepting any payment.

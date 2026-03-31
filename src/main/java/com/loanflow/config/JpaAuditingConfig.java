@@ -28,7 +28,7 @@
 //            // 3. Extract the email/username and return it for Hibernate to inject into @CreatedBy
 //            Object principal = authentication.getPrincipal();
 //            if (principal instanceof UserDetails) {
-//                return Optional.of(((UserDetails) principal).getUsername());
+//                return Optional.of(((UserDetails) principal).getEmail());
 //            } else {
 //                return Optional.of(principal.toString());
 //            }

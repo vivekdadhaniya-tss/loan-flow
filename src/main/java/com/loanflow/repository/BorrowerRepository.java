@@ -13,6 +13,9 @@ import java.util.UUID;
 @Repository
 public interface BorrowerRepository extends JpaRepository<Borrower, UUID> {
 
+    Optional<Borrower> findByPanNumber(String panNumber);
+
+
     Optional<Borrower> findByEmail(String email);
 
      boolean existsByEmail(String email);

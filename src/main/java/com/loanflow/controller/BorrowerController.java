@@ -6,6 +6,7 @@ import com.loanflow.dto.response.EmiScheduleResponse;
 import com.loanflow.dto.response.LoanApplicationResponse;
 import com.loanflow.dto.response.LoanResponse;
 import com.loanflow.entity.user.User;
+import com.loanflow.repository.BorrowerRepository;
 import com.loanflow.repository.UserRepository;
 //import com.loanflow.security.SecurityUtils;
 import com.loanflow.service.EmiScheduleService;
@@ -33,13 +34,14 @@ public class BorrowerController {
     private final EmiScheduleService emiScheduleService;
 //    private final SecurityUtils securityUtils;
     private final UserRepository userRepository;
+    private final BorrowerRepository borrowerRepository;
 
 
     @PostMapping("/applications")
     public ResponseEntity<ApiResponse<LoanApplicationResponse>> applyLoan(
-            @Valid @RequestBody LoanApplicationRequest request , @RequestParam UUID id) {
+            @Valid @RequestBody LoanApplicationRequest request , @RequestParam String panNumber) {
 
-        User borrower = userRepository.findById(id)
+        User borrower = borrowerRepository.findByPanNumber(panNumber)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         log.info("Received loan application request from borrower: {}", borrower.getEmail());

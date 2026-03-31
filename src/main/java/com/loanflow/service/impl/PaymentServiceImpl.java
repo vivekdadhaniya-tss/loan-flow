@@ -61,6 +61,12 @@ public class PaymentServiceImpl implements PaymentService {
             throw new UnauthorizedAccessException("You are not authorized to make payments on this loan.");
         }
 
+        if (loan.getStatus() != LoanStatus.ACTIVE) {
+            throw new BusinessRuleException(
+                    "Payments can only be made on ACTIVE loans. " +
+                            "Current status: " + loan.getStatus());
+        }
+
         // 3. Business Rule: Prevent double payments
         // (Assuming your schedule entity uses an enum like ScheduleStatus.PAID)
         if (EmiStatus.PAID.equals(schedule.getStatus())) {

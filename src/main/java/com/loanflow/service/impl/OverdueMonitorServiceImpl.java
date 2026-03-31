@@ -56,7 +56,7 @@ public class OverdueMonitorServiceImpl implements OverdueMonitorService {
             String oldStatus = emi.getStatus().name();  // PENDING
 
             // Mark EMI as overdue
-            emi.setStatus(EmiStatus.OVERDUE);
+            emi.setStatus(EmiStatus.OVERDUE);   // ==> now EMI is Overdue
             emiScheduleRepository.save(emi);
 
             // create or update OverdueTracker

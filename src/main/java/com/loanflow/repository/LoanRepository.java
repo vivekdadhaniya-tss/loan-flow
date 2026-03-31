@@ -3,6 +3,7 @@ package com.loanflow.repository;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.LoanStatus;
+import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,6 +44,8 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
             AND l.status = 'ACTIVE'
             """)
     Optional<BigDecimal> sumActiveMonthlyEmi(@Param("borrowerId") UUID borrowerId);
-     // Sum of monthly EMI across all ACTIVE loans for this borrower
+
+    Optional<Loan> findByLoanNumber(String loanNumber);
+    // Sum of monthly EMI across all ACTIVE loans for this borrower
      // Used by DtiCalculationService as Internal EMI
 }

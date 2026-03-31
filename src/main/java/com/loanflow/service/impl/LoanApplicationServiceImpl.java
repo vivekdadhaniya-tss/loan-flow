@@ -7,6 +7,7 @@ import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.Borrower;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.*;
+import com.loanflow.event.LoanApplicationSubmittedEvent;
 import com.loanflow.exception.LoanLimitExceededException;
 import com.loanflow.exception.UnauthorizedAccessException;
 import com.loanflow.integration.CreditBureauService;
@@ -133,7 +134,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                     .remarks("DTI: " + dtiInitial + "%")
                     .build());
 
-//            eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(saved));
+            eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(saved));
             return loanApplicationMapper.toResponse(saved);
         }
 
@@ -151,7 +152,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .actorRole(currentBorrower.getRole())
                 .build());
 
-//        eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(saved));
+        eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(saved));
 
         log.info("Application {} saved with strategy: {}",
                 saved.getId(), suggested);
