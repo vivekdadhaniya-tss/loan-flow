@@ -8,6 +8,12 @@ import com.loanflow.enums.NotificationEventType;
 import java.util.Map;
 
 public interface NotificationService {
+
+    /**
+     * Core method — called by NotificationEventListener for every event.
+     * Renders the Thymeleaf template, persists the Notification record,
+     * and sends the email.
+     */
     void send(
             User recipient,
             Loan loan,
@@ -16,5 +22,9 @@ public interface NotificationService {
             String templateName,
             Map<String, Object> model);
 
+    /**
+     * Called by NotificationRetryScheduler every 30 minutes.
+     * Re-sends using stored HTML content — does NOT re-render Thymeleaf.
+     */
     void resend(Notification notification);
 }

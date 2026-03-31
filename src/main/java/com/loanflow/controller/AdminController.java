@@ -12,7 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,16 +22,12 @@ import java.util.UUID;
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 @Slf4j
-//@PreAuthorize("hasRole('ADMIN')") // Secures all endpoints in this controller
+@PreAuthorize("hasRole('ADMIN')") // Secures all endpoints in this controller
 public class AdminController {
 
     private final UserService userService;
     private final AuditService auditService;
 
-    /**
-     * GET /api/v1/admin/users
-     * Retrieves a list of all users (Borrowers, Officers, and Admins) in the system.
-     */
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
 
@@ -42,11 +38,6 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok("Users fetched successfully.", users));
     }
 
-    /**
-     * PUT /api/v1/admin/users/{userId}/deactivate
-     * Deactivates a user account, instantly revoking their access to the system.
-     * Note: We use PUT/PATCH instead of DELETE because FinTech systems generally soft-delete or deactivate records.
-     */
     @PutMapping("/users/{userId}/deactivate")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(
             @PathVariable UUID userId) {
@@ -58,10 +49,6 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok("User deactivated successfully.", null));
     }
 
-    /**
-     * GET /api/v1/admin/audit-logs?page=0&size=20&sortBy=createdAt&direction=DESC
-     * Retrieves a paginated list of system audit logs.
-     */
     @GetMapping("/audit-logs")
     public ResponseEntity<ApiResponse<Page<AuditLogResponse>>> getAuditLogs(
             @RequestParam(defaultValue = "0") int page,
