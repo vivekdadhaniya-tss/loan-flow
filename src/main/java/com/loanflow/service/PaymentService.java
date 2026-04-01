@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface PaymentService {
 
     @Transactional
-    PaymentResponse simulatePayment(PaymentSimulationRequest request, User borrower);
+    List<PaymentResponse> simulatePayment(PaymentSimulationRequest request, User borrower);
 
     List<PaymentResponse> getPaymentsByLoanNumber(String loanNumber);
 }

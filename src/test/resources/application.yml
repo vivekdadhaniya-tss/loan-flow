@@ -34,3 +34,7 @@ spring:
 jwt:
   secret: dGVzdC1zZWNyZXQta2V5LWZvci1sb2FuLWZsb3ctanVuaXQtdGVzdGluZy1taW5pbXVtLTI1Ni1iaXRzLWtleQ==
   expiration-ms: 86400000
+
+credit-bureau:
+  base-url: "http://localhost:8081/mock-bureau"
+  timeout-ms: 5000
