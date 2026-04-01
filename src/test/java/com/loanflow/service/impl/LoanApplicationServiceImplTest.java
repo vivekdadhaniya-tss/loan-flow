@@ -3,7 +3,9 @@ package com.loanflow.service.impl;
 import com.loanflow.constants.LoanConstants;
 import com.loanflow.dto.request.AuditRequest;
 import com.loanflow.dto.request.LoanApplicationRequest;
-import com.loanflow.dto.response.LoanApplicationResponse;
+import com.loanflow.dto.response.BorrowerApplicationResponse;
+//import com.loanflow.dto.response.LoanApplicationResponse;
+import com.loanflow.dto.response.OfficerApplicationResponse;
 import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.Borrower;
 import com.loanflow.entity.user.User;
@@ -160,10 +162,10 @@ class LoanApplicationServiceImplTest {
         savedApp.setStatus(ApplicationStatus.PENDING);
 
         when(loanApplicationRepository.save(any(LoanApplication.class))).thenReturn(savedApp);
-        when(loanApplicationMapper.toResponse(savedApp)).thenReturn(new LoanApplicationResponse());
+        when(loanApplicationMapper.toBorrowerResponse(savedApp)).thenReturn(new BorrowerApplicationResponse());
 
         // Act
-        LoanApplicationResponse response = loanApplicationService.apply(applyRequest, testBorrower);
+        BorrowerApplicationResponse response = loanApplicationService.apply(applyRequest, testBorrower);
 
         // Assert
         assertThat(response).isNotNull();
@@ -237,11 +239,11 @@ class LoanApplicationServiceImplTest {
         List<LoanApplication> pendingApps = List.of(new LoanApplication(), new LoanApplication());
         when(loanApplicationRepository.findByStatusOrderByCreatedAtAsc(ApplicationStatus.PENDING)).thenReturn(pendingApps);
 
-        List<LoanApplicationResponse> responses = List.of(new LoanApplicationResponse(), new LoanApplicationResponse());
-        when(loanApplicationMapper.toResponseList(pendingApps)).thenReturn(responses);
+        List<OfficerApplicationResponse> responses = List.of(new OfficerApplicationResponse(), new OfficerApplicationResponse());
+        when(loanApplicationMapper.toOfficerResponseList(pendingApps)).thenReturn(responses);
 
         // Act
-        List<LoanApplicationResponse> result = loanApplicationService.getPendingApplications();
+        List<OfficerApplicationResponse> result = loanApplicationService.getPendingApplications();
 
         // Assert
         assertThat(result).hasSize(2);
@@ -255,11 +257,11 @@ class LoanApplicationServiceImplTest {
         List<LoanApplication> myApps = List.of(new LoanApplication());
         when(loanApplicationRepository.findByBorrowerOrderByCreatedAtDesc(testBorrower)).thenReturn(myApps);
 
-        List<LoanApplicationResponse> responses = List.of(new LoanApplicationResponse());
-        when(loanApplicationMapper.toResponseList(myApps)).thenReturn(responses);
+        List<BorrowerApplicationResponse> responses = List.of(new BorrowerApplicationResponse());
+        when(loanApplicationMapper.toBorrowerResponseList(myApps)).thenReturn(responses);
 
         // Act
-        List<LoanApplicationResponse> result = loanApplicationService.getMyApplications(testBorrower);
+        List<BorrowerApplicationResponse> result = loanApplicationService.getMyApplications(testBorrower);
 
         // Assert
         assertThat(result).hasSize(1);

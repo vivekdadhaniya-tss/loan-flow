@@ -2,7 +2,9 @@ package com.loanflow.service.impl;
 
 import com.loanflow.dto.request.AuditRequest;
 import com.loanflow.dto.request.LoanApplicationRequest;
-import com.loanflow.dto.response.LoanApplicationResponse;
+import com.loanflow.dto.response.BorrowerApplicationResponse;
+//import com.loanflow.dto.response.LoanApplicationResponse;
+import com.loanflow.dto.response.OfficerApplicationResponse;
 import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.Borrower;
 import com.loanflow.entity.user.User;
@@ -19,10 +21,7 @@ import com.loanflow.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.format.DateTimeFormatter;
-
-
 import com.loanflow.constants.LoanConstants;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
@@ -52,7 +51,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     //  APPLY — Phase 1 (DTI_initial only)
     @Override
     @Transactional
-    public LoanApplicationResponse apply(LoanApplicationRequest request, User borrower) {
+    public BorrowerApplicationResponse apply(LoanApplicationRequest request, User borrower) {
         Borrower currentBorrower = (Borrower) borrower;
 
         // Guard 1: max 3 active loans
@@ -134,7 +133,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                     .build());
 
             eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(saved));
-            return loanApplicationMapper.toResponse(saved);
+            return loanApplicationMapper.toBorrowerResponse(saved);
         }
 
         // 7. Save as PENDING
@@ -155,7 +154,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
         log.info("Application {} saved with strategy: {}",
                 saved.getId(), suggested);
-        return loanApplicationMapper.toResponse(saved);
+        return loanApplicationMapper.toBorrowerResponse(saved);
     }
 
 
@@ -210,20 +209,20 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     //  READ — officer pending queue
     @Override
     @Transactional(readOnly = true)
-    public List<LoanApplicationResponse> getPendingApplications() {
+    public List<OfficerApplicationResponse> getPendingApplications() {
         List<LoanApplication> pending = loanApplicationRepository
                 .findByStatusOrderByCreatedAtAsc(ApplicationStatus.PENDING);
-        return loanApplicationMapper.toResponseList(pending);
+        return loanApplicationMapper.toOfficerResponseList(pending);
     }
 
 
     // READ — borrower's own history
     @Override
     @Transactional(readOnly = true)
-    public List<LoanApplicationResponse> getMyApplications(User borrower) {
+    public List<BorrowerApplicationResponse> getMyApplications(User borrower) {
         List<LoanApplication> applications = loanApplicationRepository
                 .findByBorrowerOrderByCreatedAtDesc(borrower);
-        return loanApplicationMapper.toResponseList(applications);
+        return loanApplicationMapper.toBorrowerResponseList(applications);
     }
 
 
