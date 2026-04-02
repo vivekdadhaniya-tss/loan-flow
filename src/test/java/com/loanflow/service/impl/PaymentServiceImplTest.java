@@ -14,6 +14,7 @@ import com.loanflow.enums.LoanStatus;
 import com.loanflow.enums.PenaltyStatus;
 import com.loanflow.enums.Role;
 import com.loanflow.event.PaymentReceivedEvent;
+import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
 import com.loanflow.exception.UnauthorizedAccessException;
 import com.loanflow.mapper.PaymentMapper;
@@ -34,11 +35,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,9 +69,9 @@ class PaymentServiceImplTest {
 
     private User borrower;
     private Loan activeLoan;
-    private EmiSchedule testEmi;
+    private EmiSchedule testEmi1;
+    private EmiSchedule testEmi2;
     private PaymentSimulationRequest request;
-    private final Long emiId = 200L;
     private final String loanNumber = "LN-123456";
 
     @BeforeEach
@@ -86,63 +87,105 @@ class PaymentServiceImplTest {
         activeLoan.setOverDueCount(0);
         activeLoan.setLoanNumber(loanNumber);
 
-        testEmi = new EmiSchedule();
-        testEmi.setId(emiId);
-        testEmi.setLoan(activeLoan);
-        testEmi.setStatus(EmiStatus.PENDING);
-        testEmi.setTotalEmiAmount(new BigDecimal("15000.00"));
-        testEmi.setInstallmentNumber(1);
+        testEmi1 = new EmiSchedule();
+        testEmi1.setId(1L);
+        testEmi1.setLoan(activeLoan);
+        testEmi1.setStatus(EmiStatus.PENDING);
+        testEmi1.setTotalEmiAmount(new BigDecimal("15000.00"));
+        testEmi1.setInstallmentNumber(1);
+
+        testEmi2 = new EmiSchedule();
+        testEmi2.setId(2L);
+        testEmi2.setLoan(activeLoan);
+        testEmi2.setStatus(EmiStatus.PENDING);
+        testEmi2.setTotalEmiAmount(new BigDecimal("15000.00"));
+        testEmi2.setInstallmentNumber(2);
 
         request = new PaymentSimulationRequest();
-        request.setEmiScheduleId(emiId);
+        request.setLoanNumber(loanNumber);
+        request.setInstallmentCount(1); // Default to 1 for basic tests
     }
 
+    // =========================================================================
+    // SIMULATE PAYMENT TESTS
+    // =========================================================================
+
     @Test
-    @DisplayName("Should successfully process standard PENDING payment")
-    void simulatePayment_PendingEmi_Success() {
+    @DisplayName("Should successfully process a single standard PENDING payment")
+    void simulatePayment_SinglePendingEmi_Success() {
         // Arrange
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.of(testEmi));
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(Pageable.class)))
+                .thenReturn(List.of(testEmi1));
+
         when(paymentRepository.getNextReceiptSequence()).thenReturn(105L);
         when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
         when(paymentMapper.toResponse(any(Payment.class))).thenReturn(new PaymentResponse());
 
         // Act
-        PaymentResponse response = paymentService.simulatePayment(request, borrower);
+        List<PaymentResponse> response = paymentService.simulatePayment(request, borrower);
 
         // Assert
-        assertThat(response).isNotNull();
-        assertThat(testEmi.getStatus()).isEqualTo(EmiStatus.PAID);
-        assertThat(testEmi.getPaidAt()).isNotNull();
+        assertThat(response).hasSize(1);
+        assertThat(testEmi1.getStatus()).isEqualTo(EmiStatus.PAID);
+        assertThat(testEmi1.getPaidAt()).isNotNull();
 
-        verify(emiScheduleRepository).save(testEmi);
+        verify(emiScheduleRepository).save(testEmi1);
         verify(paymentRepository).save(paymentCaptor.capture());
 
         Payment savedPayment = paymentCaptor.getValue();
         assertThat(savedPayment.getPaidAmount()).isEqualByComparingTo("15000.00");
-        assertThat(savedPayment.getReceiptNumber()).contains("RCP-"); // Verifying receipt format
+        assertThat(savedPayment.getReceiptNumber()).contains("RCP-");
 
         verify(auditService).log(any(AuditRequest.class));
         verify(eventPublisher).publishEvent(any(PaymentReceivedEvent.class));
         verify(loanService).closeLoanIfCompleted(activeLoan);
+    }
 
-        // Ensure overdue logic was NOT triggered
-        verifyNoInteractions(overdueTrackerRepository);
+    @Test
+    @DisplayName("Should successfully process multiple installments at once")
+    void simulatePayment_MultipleInstallments_Success() {
+        // Arrange
+        request.setInstallmentCount(2); // Requesting to pay 2 EMIs
+
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(Pageable.class)))
+                .thenReturn(List.of(testEmi1, testEmi2));
+
+        when(paymentRepository.getNextReceiptSequence()).thenReturn(105L, 106L);
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
+        when(paymentMapper.toResponse(any(Payment.class))).thenReturn(new PaymentResponse());
+
+        // Act
+        List<PaymentResponse> response = paymentService.simulatePayment(request, borrower);
+
+        // Assert
+        assertThat(response).hasSize(2);
+        assertThat(testEmi1.getStatus()).isEqualTo(EmiStatus.PAID);
+        assertThat(testEmi2.getStatus()).isEqualTo(EmiStatus.PAID);
+        verify(paymentRepository, times(2)).save(any(Payment.class));
     }
 
     @Test
     @DisplayName("Should successfully process OVERDUE payment and resolve tracker")
     void simulatePayment_OverdueEmi_ResolvesTrackerAndDecrementsCount() {
         // Arrange
-        testEmi.setStatus(EmiStatus.OVERDUE);
-        activeLoan.setOverDueCount(2); // Loan has 2 overdue EMIs
+        testEmi1.setStatus(EmiStatus.OVERDUE);
+        activeLoan.setOverDueCount(2);
 
         OverdueTracker tracker = new OverdueTracker();
-        tracker.setEmiSchedule(testEmi);
+        tracker.setEmiSchedule(testEmi1);
 
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.of(testEmi));
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(Pageable.class)))
+                .thenReturn(List.of(testEmi1));
+
         when(paymentRepository.getNextReceiptSequence()).thenReturn(106L);
         when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
-        when(overdueTrackerRepository.findByEmiSchedule(testEmi)).thenReturn(Optional.of(tracker));
+        when(overdueTrackerRepository.findByEmiSchedule(testEmi1)).thenReturn(Optional.of(tracker));
 
         // Act
         paymentService.simulatePayment(request, borrower);
@@ -155,83 +198,107 @@ class PaymentServiceImplTest {
 
         verify(loanRepository).save(loanCaptor.capture());
         Loan savedLoan = loanCaptor.getValue();
-        assertThat(savedLoan.getOverDueCount()).isEqualTo(1); // Decremented from 2 to 1
+        assertThat(savedLoan.getOverDueCount()).isEqualTo(1); // Decremented from 2
     }
 
     @Test
-    @DisplayName("Should throw Exception if Receipt Sequence generation fails")
-    void simulatePayment_ThrowsException_IfSequenceFails() {
+    @DisplayName("Should throw Exception if user is not authorized to pay this loan")
+    void simulatePayment_ThrowsException_IfUnauthorized() {
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(false);
+        when(securityUtils.hasRole("ADMIN")).thenReturn(false);
+
+        assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
+                .isInstanceOf(UnauthorizedAccessException.class)
+                .hasMessageContaining("You are not authorized to make a payment");
+    }
+
+    @Test
+    @DisplayName("Should throw Exception if no pending EMIs are found")
+    void simulatePayment_ThrowsException_IfNoPendingEmis() {
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(Pageable.class)))
+                .thenReturn(List.of()); // Empty list
+
+        assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("No pending EMIs found");
+    }
+
+    @Test
+    @DisplayName("Should throw Exception if requested installments exceed max allowed")
+    void simulatePayment_ThrowsException_IfRequestedExceedsMaxAllowed() {
         // Arrange
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.of(testEmi));
-        when(paymentRepository.getNextReceiptSequence()).thenReturn(null); // Sequence generation fails
+        request.setInstallmentCount(5); // Requesting 5
+        // List contains 4 PENDING EMIs (0 overdue). Max allowed should be 0 + 3 = 3.
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(Pageable.class)))
+                .thenReturn(List.of(testEmi1, testEmi2, new EmiSchedule(), new EmiSchedule()));
 
         // Act & Assert
         assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Failed to generate receipt number sequence");
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("You can only pay up to 3 installments at a time");
     }
 
     @Test
-    @DisplayName("Should throw ResourceNotFoundException if EMI does not exist")
-    void simulatePayment_ThrowsException_IfEmiNotFound() {
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.empty());
+    @DisplayName("Should throw ResourceNotFoundException if Loan does not exist")
+    void simulatePayment_ThrowsException_IfLoanNotFound() {
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("EMI Schedule not found");
+                .hasMessageContaining("Loan not found");
     }
 
-    // --- GET PAYMENTS BY LOAN NUMBER TESTS ---
+
+    // =========================================================================
+    // GET PAYMENTS BY LOAN NUMBER TESTS
+    // =========================================================================
 
     @Test
     @DisplayName("Officer should be able to view payments for any loan")
     void getPaymentsByLoanNumber_OfficerAccess_Success() {
-        // Arrange
         when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
-        when(securityUtils.hasRole("LOAN_OFFICER")).thenReturn(true); // Is an officer
+        when(securityUtils.hasRole("LOAN_OFFICER")).thenReturn(true);
 
         List<Payment> payments = List.of(new Payment(), new Payment());
         when(paymentRepository.findByLoan_LoanNumberOrderByPaidAtDesc(loanNumber)).thenReturn(payments);
 
-        // Act
         List<PaymentResponse> result = paymentService.getPaymentsByLoanNumber(loanNumber);
 
-        // Assert
         assertThat(result).hasSize(2);
-        verify(securityUtils, never()).isOwner(any()); // Owner check bypassed
+        verify(securityUtils, never()).isOwner(any());
     }
 
     @Test
     @DisplayName("Borrower should be able to view their OWN payments")
     void getPaymentsByLoanNumber_OwnerAccess_Success() {
-        // Arrange
         when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
         when(securityUtils.hasRole("LOAN_OFFICER")).thenReturn(false);
-        when(securityUtils.isOwner(borrower.getId())).thenReturn(true); // Is the owner!
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
 
         List<Payment> payments = List.of(new Payment());
         when(paymentRepository.findByLoan_LoanNumberOrderByPaidAtDesc(loanNumber)).thenReturn(payments);
 
-        // Act
         List<PaymentResponse> result = paymentService.getPaymentsByLoanNumber(loanNumber);
 
-        // Assert
         assertThat(result).hasSize(1);
     }
 
     @Test
     @DisplayName("Should throw UnauthorizedAccessException if Borrower tries to view someone else's payments")
     void getPaymentsByLoanNumber_ThrowsException_IfUnauthorized() {
-        // Arrange
         when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
         when(securityUtils.hasRole("LOAN_OFFICER")).thenReturn(false);
-        when(securityUtils.isOwner(borrower.getId())).thenReturn(false); // Trying to view another user's loan!
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(false);
 
-        // Act & Assert
         assertThatThrownBy(() -> paymentService.getPaymentsByLoanNumber(loanNumber))
                 .isInstanceOf(UnauthorizedAccessException.class)
                 .hasMessageContaining("Access Denied");
 
-        verifyNoInteractions(paymentRepository); // Ensure data is not fetched
+        verifyNoInteractions(paymentRepository);
     }
 }
