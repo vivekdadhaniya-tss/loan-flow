@@ -8,9 +8,7 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class PaymentResponse {
 
-    private Long id;
-
-    private String receiptNumber; // <=== Added this
+    private String receiptNumber;
 
     private Long loanId;
 

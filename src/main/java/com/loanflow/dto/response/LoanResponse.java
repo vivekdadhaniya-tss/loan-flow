@@ -9,11 +9,9 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class LoanResponse {
 
-    private Long id;
-
     private String loanNumber;
 
-    private Long applicationId;
+    private String applicationNumber;
 
     private BigDecimal approvedAmount;
 

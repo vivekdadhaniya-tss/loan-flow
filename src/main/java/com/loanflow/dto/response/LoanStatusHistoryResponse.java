@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class LoanStatusHistoryResponse {
 
-    private Long id;
     private LoanStatus oldStatus;
     private LoanStatus newStatus;
 

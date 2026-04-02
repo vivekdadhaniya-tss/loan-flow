@@ -9,7 +9,7 @@ import java.util.List;
 public interface LoanMapper {
 
     @Mapping(target = "approvedByName", source = "approvedBy.name")
-    @Mapping(target = "applicationId",  source = "application.id")
+    @Mapping(target = "applicationNumber",  source = "application.applicationNumber")
     @Mapping(target = "overdueCount", source = "overDueCount")
     LoanResponse toResponse(Loan loan);
 
