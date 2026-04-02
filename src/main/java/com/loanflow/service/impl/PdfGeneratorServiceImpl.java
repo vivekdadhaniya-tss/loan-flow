@@ -49,12 +49,12 @@ public class PdfGeneratorServiceImpl implements PdfGeneratorService {
             addTableRow(table, "Borrower Email", payment.getBorrower().getEmail());
             addTableRow(table, "Loan Number", payment.getLoan().getLoanNumber());
             addTableRow(table, "EMI Installment Number", String.valueOf(payment.getEmiSchedule().getInstallmentNumber()));
-            addTableRow(table, "Principal Paid", "$" + payment.getEmiSchedule().getPrincipalAmount());
-            addTableRow(table, "Interest Paid", "$" + payment.getEmiSchedule().getInterestAmount());
+            addTableRow(table, "Principal Paid", "" + payment.getEmiSchedule().getPrincipalAmount());
+            addTableRow(table, "Interest Paid", "" + payment.getEmiSchedule().getInterestAmount());
 
             // Highlight Total Amount
             PdfPCell totalCellLabel = new PdfPCell(new Phrase("Total Amount Paid", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
-            PdfPCell totalCellValue = new PdfPCell(new Phrase("$" + payment.getPaidAmount(), FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
+            PdfPCell totalCellValue = new PdfPCell(new Phrase("" + payment.getPaidAmount(), FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
             table.addCell(totalCellLabel);
             table.addCell(totalCellValue);
 

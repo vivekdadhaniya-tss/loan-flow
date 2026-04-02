@@ -42,12 +42,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deactivateUser(Long targetUserId) {
+    public void deactivateUser(String email) {
 
         User currentAdmin = securityUtils.getCurrentUser();
 
-        User targetUser = userRepository.findById(targetUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + targetUserId));
+        User targetUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email : " + email));
 
         // Prevent self-deactivation
         if (targetUser.getId().equals(currentAdmin.getId())) {

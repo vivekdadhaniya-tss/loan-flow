@@ -8,5 +8,5 @@ public interface UserService {
 
     List<UserResponse> getAllUsers();
 
-    void deactivateUser(Long userId);
+    void deactivateUser(String email);
 }

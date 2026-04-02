@@ -12,6 +12,9 @@ import java.util.Optional;
 @Repository
 public interface BorrowerRepository extends JpaRepository<Borrower, Long> {
 
+    Optional<Borrower> findByPanNumber(String panNumber);
+
+
     Optional<Borrower> findByEmail(String email);
 
      boolean existsByEmail(String email);
