@@ -1,26 +1,18 @@
 package com.loanflow.constants;
 
-/**
-        * JWT and Spring Security string constants.
-        * Centralise here so JwtAuthenticationFilter, JwtTokenProvider,
- * and SecurityConfig never drift out of sync.
- */
+
 public final class SecurityConstants {
 
     private SecurityConstants() {}
 
-    // ── HTTP header ────────────────────────────────────────────────
 
-    /** Standard Authorization header name */
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    /** Prefix stripped from token before parsing */
     public static final String BEARER_PREFIX = "Bearer ";
 
-    /** Token type field in AuthResponse */
     public static final String TOKEN_TYPE = "Bearer";
 
-    // ── Spring Security role prefix ────────────────────────────────
+    // Spring Security role prefix
     // Used by CustomUserDetailsService when building SimpleGrantedAuthority
 
     /**
@@ -30,7 +22,7 @@ public final class SecurityConstants {
      */
     public static final String ROLE_PREFIX = "ROLE_";
 
-    // ── Public endpoints ───────────────────────────────────────────
+    // Public endpoints
     // Used by SecurityConfig — add new public URLs here only
 
     /**

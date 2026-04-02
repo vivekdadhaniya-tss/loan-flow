@@ -2,10 +2,7 @@ package com.loanflow.constants;
 
 import java.math.BigDecimal;
 
-/**
- * Central registry for every business-rule constant.
- * Never hardcode these values in services or strategies.
- */
+
 public final class LoanConstants {
 
     private LoanConstants() {}

@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.time.*;
 import java.time.format.*;
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -110,18 +109,6 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setReceiptNumber(generateReceiptNumber());
             Payment saved = paymentRepository.save(payment);
             savedPayments.add(saved);
-
-            // --- Reduce the outstanding principal from Loan ---
-            // Subtract only the principal part of the EMI from the loan balance
-            BigDecimal newBalance = loan.getOutstandingPrincipal().subtract(emi.getPrincipalAmount());
-
-            // Ensure the balance never goes below zero due to rounding differences
-            if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-                newBalance = BigDecimal.ZERO;
-            }
-
-            loan.setOutstandingPrincipal(newBalance);
-            loanRepository.save(loan);
 
             if (EmiStatus.OVERDUE.name().equals(oldEmiStatus)) {
                 overdueTrackerRepository.findByEmiSchedule(emi)
