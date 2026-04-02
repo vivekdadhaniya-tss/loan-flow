@@ -35,7 +35,7 @@ public class PaymentController {
 
     @PostMapping("/simulate")
     @PreAuthorize("hasRole('BORROWER')")
-    public ResponseEntity<ApiResponse<PaymentResponse>> simulate(
+    public ResponseEntity<ApiResponse<List<PaymentResponse>>> simulate(
             @Valid @RequestBody PaymentSimulationRequest request) {
         return ResponseEntity.ok(ApiResponse.ok(
                 paymentService.simulatePayment(

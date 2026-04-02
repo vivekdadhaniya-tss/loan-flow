@@ -12,7 +12,7 @@ public final class EmiCalculationUtil {
 
     private EmiCalculationUtil() {}
 
-    // ── Rate conversion ────────────────────────────────────────────
+    // Rate conversion
 
     /**
      * Converts annual interest rate (%) to monthly decimal rate.
@@ -25,8 +25,6 @@ public final class EmiCalculationUtil {
      * Precision kept at 10 decimal places to avoid compounding
      * rounding error across many installments.
      *
-     * @param annualRatePercent  e.g. BigDecimal("12.00") for 12%
-     * @return monthly rate as decimal, 10dp precision
      */
     public static BigDecimal calculateMonthlyRate(
             BigDecimal annualRatePercent) {
@@ -34,7 +32,7 @@ public final class EmiCalculationUtil {
                 .divide(new BigDecimal("1200"), 10, RoundingMode.HALF_UP);
     }
 
-    // ── Reducing balance EMI formula ───────────────────────────────
+    // Reducing balance EMI formula
 
     /**
      * Standard reducing balance (PMT) formula:
@@ -44,10 +42,6 @@ public final class EmiCalculationUtil {
      *   ReducingBalanceStrategy — as the fixed EMI for all installments.
      *   StepUpEmiStrategy       — as the BASE EMI before annual 5% step-up.
      *
-     * @param principal    approved loan amount
-     * @param monthlyRate  output of calculateMonthlyRate()
-     * @param tenureMonths total number of installments
-     * @return EMI rounded to 2 decimal places
      */
     public static BigDecimal calculateReducingBalanceEmi(
             BigDecimal principal,
@@ -69,7 +63,7 @@ public final class EmiCalculationUtil {
         return MoneyUtil.roundHalfUp(numerator.divide(denominator, 10, RoundingMode.HALF_UP));
     }
 
-    // ── Flat rate helpers ──────────────────────────────────────────
+    // Flat rate helpers
 
     /**
      * Monthly principal portion for flat rate loans.
@@ -78,9 +72,6 @@ public final class EmiCalculationUtil {
      * In flat rate, principal is divided equally every month.
      * Used by FlatRateStrategy only.
      *
-     * @param principal    approved loan amount
-     * @param tenureMonths total installments
-     * @return monthly principal component rounded to 2dp
      */
     public static BigDecimal calculateFlatMonthlyPrincipal(
             BigDecimal principal,
@@ -99,9 +90,6 @@ public final class EmiCalculationUtil {
      * not the outstanding balance — this is what makes it "flat".
      * Used by FlatRateStrategy only.
      *
-     * @param principal   approved loan amount (never changes)
-     * @param monthlyRate output of calculateMonthlyRate()
-     * @return monthly interest component rounded to 2dp
      */
     public static BigDecimal calculateFlatMonthlyInterest(
             BigDecimal principal,
