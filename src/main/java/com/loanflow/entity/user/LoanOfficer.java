@@ -12,14 +12,6 @@ import lombok.*;
 @NoArgsConstructor
 public class LoanOfficer extends User{
 
-//    @Id
-//    private UUID id;
-//
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @MapsId
-//    @JoinColumn(name = "user_id")
-//    private User user;
-
     @NotBlank
     @Column(nullable = false, unique = true)
     private String employeeId;

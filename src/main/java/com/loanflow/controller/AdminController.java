@@ -37,13 +37,13 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok("Users fetched successfully.", users));
     }
 
-    @PutMapping("/users/{userId}/deactivate")
+    @PutMapping("/users/{email}/deactivate")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(
-            @PathVariable Long userId) {
+            @PathVariable String email) {
 
-        log.info("Admin requested to deactivate user with ID: {}", userId);
+        log.info("Admin requested to deactivate user with email : {}", email);
 
-        userService.deactivateUser(userId);
+        userService.deactivateUser(email);
 
         return ResponseEntity.ok(ApiResponse.ok("User deactivated successfully.", null));
     }

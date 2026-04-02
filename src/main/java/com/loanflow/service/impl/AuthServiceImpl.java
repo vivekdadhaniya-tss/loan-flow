@@ -3,6 +3,7 @@ package com.loanflow.service.impl;
 import com.loanflow.dto.request.LoginRequest;
 import com.loanflow.dto.request.RegisterRequest;
 import com.loanflow.dto.response.AuthResponse;
+import com.loanflow.entity.Address;
 import com.loanflow.entity.user.Admin;
 import com.loanflow.entity.user.Borrower;
 import com.loanflow.entity.user.LoanOfficer;
@@ -55,13 +56,29 @@ public class AuthServiceImpl implements AuthService {
                 b.setPanNumber(req.getPanNumber());
                 b.setOccupation(req.getOccupation());
                 b.setDateOfBirth(req.getDateOfBirth());
+
+                if (req.getAddress() != null) {
+                    Address address = new Address();
+
+                    address.setFlatNo(req.getAddress().getFlatNo());
+                    address.setArea(req.getAddress().getArea());
+                    address.setCity(req.getAddress().getCity());
+                    address.setState(req.getAddress().getState());
+                    address.setPincode(req.getAddress().getPincode());
+
+                    // Link BOTH sides of the relationship...
+                    address.setBorrower(b); // Tells the Address who its owner is
+                    b.setAddress(address);  // Tells the Borrower to hold the Address (saves the address_id)
+                }
+
                 yield b;
+
             }
             case LOAN_OFFICER -> {
                 LoanOfficer o = new LoanOfficer();
                 o.setEmployeeId(generateEmployeeId());
                 o.setDesignation(req.getDesignation());
-//                o.setMaxApprovalLimit(req.getMaxApprovalLimit());
+
                 yield o;
             }
             case ADMIN -> {

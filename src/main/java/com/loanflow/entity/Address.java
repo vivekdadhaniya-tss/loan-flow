@@ -30,15 +30,10 @@ public class Address extends BaseEntity {
     private String state;
 
     @NotBlank
-    @Column(nullable = false)
-    private String country;
-
-    @NotBlank
     @Pattern(regexp = "^[1-9][0-9]{5}$") // Indian pincode
     @Column(nullable = false)
     private String pincode;
 
-    //bidirectional mapping — LAZY to avoid eager-loading the full Borrower graph
     @OneToOne(mappedBy = "address", fetch = FetchType.LAZY)
     private Borrower borrower;
 }

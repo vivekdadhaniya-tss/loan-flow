@@ -1,6 +1,7 @@
 package com.loanflow.repository;
 
 import com.loanflow.entity.user.User;
+import org.springframework.boot.context.properties.bind.BindResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

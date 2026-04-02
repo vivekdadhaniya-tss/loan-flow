@@ -28,7 +28,7 @@ public class OfficerController {
 
     @GetMapping("/applications")
     @PreAuthorize("hasRole('LOAN_OFFICER')")
-    public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getApplications(){
+    public ResponseEntity<ApiResponse<List<OfficerApplicationResponse>>> getApplications(){
 
         return ResponseEntity.ok(ApiResponse.ok(loanApplicationService.getPendingApplications()));
     }
@@ -60,6 +60,5 @@ public class OfficerController {
         return ResponseEntity.ok(ApiResponse.ok(
                 reportService.getPortfolioSummary()));
     }
-
 
 }

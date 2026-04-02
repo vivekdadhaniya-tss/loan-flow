@@ -1,6 +1,8 @@
 package com.loanflow.mapper;
 
-import com.loanflow.dto.response.LoanApplicationResponse;
+import com.loanflow.dto.response.BorrowerApplicationResponse;
+//import com.loanflow.dto.response.LoanApplicationResponse;
+import com.loanflow.dto.response.OfficerApplicationResponse;
 import com.loanflow.entity.LoanApplication;
 import org.mapstruct.*;
 import java.util.List;
@@ -15,9 +17,19 @@ public interface LoanApplicationMapper {
      * monthlyIncome and existingMonthlyEmi are included so the officer
      * can see the borrower's declared income during review.
      */
-    @Mapping(target = "reviewedByName", source = "reviewedBy.name")
-    LoanApplicationResponse toResponse(LoanApplication application);
 
-    /** Used by officer GET /api/v1/officer/applications */
-    List<LoanApplicationResponse> toResponseList(List<LoanApplication> applications);
+    // used in BorrowerController
+    BorrowerApplicationResponse toBorrowerResponse(LoanApplication application);
+    List<BorrowerApplicationResponse> toBorrowerResponseList(List<LoanApplication> applications);
+
+    // used in OfficerController
+    @Mapping(target = "reviewedByName", source = "reviewedBy.name")
+    OfficerApplicationResponse toOfficerResponse(LoanApplication application);
+    List<OfficerApplicationResponse> toOfficerResponseList(List<LoanApplication> applications);
+
+//    @Mapping(target = "reviewedByName", source = "reviewedBy.name")
+//    LoanApplicationResponse toResponse(LoanApplication application);
+//
+//    /** Used by officer GET /api/v1/officer/applications */
+//    List<LoanApplicationResponse> toResponseList(List<LoanApplication> applications);
 }

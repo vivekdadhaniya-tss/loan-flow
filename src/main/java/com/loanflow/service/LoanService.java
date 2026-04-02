@@ -5,7 +5,7 @@ import com.loanflow.dto.response.LoanResponse;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.user.User;
 
-import java.util.List;
+import java.util.*;
 
 public interface LoanService {
 

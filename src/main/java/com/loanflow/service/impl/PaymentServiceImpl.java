@@ -9,7 +9,6 @@ import com.loanflow.entity.Payment;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.*;
 import com.loanflow.event.PaymentReceivedEvent;
-import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
 import com.loanflow.exception.UnauthorizedAccessException;
 import com.loanflow.mapper.PaymentMapper;
@@ -25,15 +24,13 @@ import com.loanflow.util.ValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.*;
 import java.time.format.*;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -52,97 +49,89 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public List<PaymentResponse> simulatePayment(PaymentSimulationRequest request, User borrower) {
+    public PaymentResponse simulatePayment(PaymentSimulationRequest request, User borrower) {
 
-        Loan loan = loanRepository.findByLoanNumber(request.getLoanNumber())
+        EmiSchedule emi = emiScheduleRepository
+                .findById(request.getEmiScheduleId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Loan not found: " + request.getLoanNumber()));
+                        "EMI Schedule not found: " + request.getEmiScheduleId()));
 
-        if (!securityUtils.isOwner(loan.getBorrower().getId()) && !securityUtils.hasRole("ADMIN")) {
-            throw new UnauthorizedAccessException("You are not authorized to make a payment for this loan.");
+        // Guard 1: EMI must not already be paid
+        ValidationUtil.ensureEmiNotAlreadyPaid(emi);
+
+        // Guard 2: Loan must be ACTIVE
+        ValidationUtil.ensureLoanIsActive(emi.getLoan());
+
+        // capture old status for audit log
+        String oldEmiStatus = emi.getStatus().name();
+
+        // mark EMI as paid
+        emi.setStatus(EmiStatus.PAID);
+        emi.setPaidAt(LocalDateTime.now());
+        emiScheduleRepository.save(emi);
+
+        // create payment record
+        Payment payment = new Payment();
+        payment.setEmiSchedule(emi);
+        payment.setLoan(emi.getLoan());
+        payment.setBorrower(borrower);
+        payment.setPaidAmount(emi.getTotalEmiAmount());
+        payment.setPaymentMode(PaymentMode.SIMULATION);
+        payment.setPaidAt(LocalDateTime.now());
+        payment.setReceiptNumber(generateReceiptNumber());
+        Payment saved = paymentRepository.save(payment);
+
+        //  Reduce the outstanding principal from Loan
+        Loan loan = emi.getLoan();
+
+        // Subtract only the principal part of the EMI from the loan balance
+        BigDecimal newBalance = loan.getOutstandingPrincipal().subtract(emi.getPrincipalAmount());
+
+        // Ensure the balance never goes below zero due to rounding differences
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            newBalance = BigDecimal.ZERO;
         }
 
-        // Guard: Loan must be ACTIVE
-        ValidationUtil.ensureLoanIsActive(loan);
+        loan.setOutstandingPrincipal(newBalance);
+        loanRepository.save(loan);
+        // -------------------------------------------------------------
 
-        // Fetch unpaid EMIs sequentially
-        List<EmiSchedule> unpaidEmis = emiScheduleRepository.findNextUnpaidEmis(
-                loan, PageRequest.of(0, 50));
+        // if emi was overdue - resolve the tracker and penalty
+        if (EmiStatus.OVERDUE.name().equals(oldEmiStatus)) {
+            overdueTrackerRepository.findByEmiSchedule(emi)
+                    .ifPresent(tracker -> {
+                        tracker.setResolvedAt(LocalDateTime.now());
+                        tracker.setPenaltyStatus(PenaltyStatus.SETTLED);
+                        overdueTrackerRepository.save(tracker);
 
-        if (unpaidEmis.isEmpty()) {
-            throw new BusinessRuleException("No pending EMIs found for this loan.");
+                        // decrement overdue count on loan
+                        emi.getLoan().setOverDueCount(
+                                Math.max(0, emi.getLoan().getOverDueCount() - 1));
+                        loanRepository.save(emi.getLoan());
+                    });
         }
 
-        int requestedCount = request.getInstallmentCount() != null ? request.getInstallmentCount() : 1;
+        auditService.log(AuditRequest.builder()
+                .entityType(EntityType.EMI_SCHEDULE)
+                .entityId(emi.getId())
+                .action("MARKED_PAID")
+                .oldStatus(oldEmiStatus)
+                .newStatus(EmiStatus.PAID.name())
+                .performedBy(borrower)
+                .actorRole(borrower.getRole())
+                .remarks("Payment simulated. Amount: " + emi.getTotalEmiAmount())
+                .build());
 
-        // Validation Rule: max allowed is OVERDUE count + 3 (Current + 2 Upcomings)
-        long overdueCount = unpaidEmis.stream()
-                .filter(e -> e.getStatus() == EmiStatus.OVERDUE).count();
-        int maxAllowed = (int) overdueCount + 3;
+        // fire event -> listener sends EMI_PAID email
+        applicationEventPublisher.publishEvent(new PaymentReceivedEvent(saved, emi));
 
-        if (requestedCount > maxAllowed) {
-            throw new BusinessRuleException(
-                    "You can only pay up to " + maxAllowed + " installments at a time (Overdue + Current + Next 2).");
-        }
-        
-        if (requestedCount > unpaidEmis.size()) {
-            requestedCount = unpaidEmis.size();
-        }
+        // check all emis paid -> loan closed
+        loanService.closeLoanIfCompleted(emi.getLoan());
 
-        List<EmiSchedule> emisToPay = unpaidEmis.subList(0, requestedCount);
-        List<Payment> savedPayments = new ArrayList<>();
+        log.info("Payment simulated for installment {} of loan {}",
+                emi.getInstallmentNumber(), emi.getLoan().getId());
 
-        for (EmiSchedule emi : emisToPay) {
-            String oldEmiStatus = emi.getStatus().name();
-
-            emi.setStatus(EmiStatus.PAID);
-            emi.setPaidAt(LocalDateTime.now());
-            emiScheduleRepository.save(emi);
-
-            Payment payment = new Payment();
-            payment.setEmiSchedule(emi);
-            payment.setLoan(loan);
-            payment.setBorrower(borrower);
-            payment.setPaidAmount(emi.getTotalEmiAmount());
-            payment.setPaymentMode(PaymentMode.SIMULATION);
-            payment.setPaidAt(LocalDateTime.now());
-            payment.setReceiptNumber(generateReceiptNumber());
-            Payment saved = paymentRepository.save(payment);
-            savedPayments.add(saved);
-
-            if (EmiStatus.OVERDUE.name().equals(oldEmiStatus)) {
-                overdueTrackerRepository.findByEmiSchedule(emi)
-                        .ifPresent(tracker -> {
-                            tracker.setResolvedAt(LocalDateTime.now());
-                            tracker.setPenaltyStatus(PenaltyStatus.SETTLED);
-                            overdueTrackerRepository.save(tracker);
-
-                            loan.setOverDueCount(Math.max(0, loan.getOverDueCount() - 1));
-                            loanRepository.save(loan);
-                        });
-            }
-
-            auditService.log(AuditRequest.builder()
-                    .entityType(EntityType.EMI_SCHEDULE)
-                    .entityId(emi.getId())
-                    .action("MARKED_PAID")
-                    .oldStatus(oldEmiStatus)
-                    .newStatus(EmiStatus.PAID.name())
-                    .performedBy(borrower)
-                    .actorRole(borrower.getRole())
-                    .remarks("Payment simulated. Amount: " + emi.getTotalEmiAmount())
-                    .build());
-
-            applicationEventPublisher.publishEvent(new PaymentReceivedEvent(saved, emi));
-        }
-
-        loanService.closeLoanIfCompleted(loan);
-
-        log.info("{} payments simulated for loan {}", savedPayments.size(), loan.getId());
-
-        return savedPayments.stream()
-                .map(paymentMapper::toResponse)
-                .collect(Collectors.toList());
+        return paymentMapper.toResponse(saved);
     }
 
 
