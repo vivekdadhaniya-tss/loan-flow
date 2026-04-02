@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 public class EmiScheduleResponse {
 
+    private Long emiScheduleId;
+
     private Integer installmentNumber;
 
     private LocalDate dueDate;

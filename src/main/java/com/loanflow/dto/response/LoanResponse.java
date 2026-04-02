@@ -11,7 +11,7 @@ public class LoanResponse {
 
     private String loanNumber;
 
-    private Long applicationNumber;
+    private String applicationNumber;
 
     private BigDecimal approvedAmount;
 
