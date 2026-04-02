@@ -110,6 +110,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("Successfully registered new user with email: {} and role: {}", saved.getEmail(), saved.getRole());
 
         return AuthResponse.builder()
+                .role(user.getRole())
                 .build();
     }
 
@@ -133,6 +134,7 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .token(token)
+                .role(user.getRole())
                 .build();
     }
 
