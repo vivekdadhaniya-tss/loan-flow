@@ -37,6 +37,8 @@ public class RegisterRequest {
 
     private String occupation;
 
+    @NotNull(message = "Date of birth is required")
+    @Past(message = "Date of birth must be a past date")
     private LocalDate dateOfBirth;
 
     private Address address;
@@ -49,7 +51,6 @@ public class RegisterRequest {
 
     @PositiveOrZero
     private Integer loansRejectedCount;
-//    private BigDecimal maxApprovalLimit;
 
     // ── Admin-specific (required when role = ADMIN) ──
     private AdminAccessLevel accessLevel;

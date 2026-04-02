@@ -13,9 +13,6 @@ import java.time.LocalDateTime;
 @Builder
 public class EmiScheduleResponse {
 
-    /** Send this ID in PaymentSimulationRequest to pay this installment */
-    private Long emiScheduleId;
-
     private Integer installmentNumber;
 
     private LocalDate dueDate;

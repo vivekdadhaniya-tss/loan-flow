@@ -23,7 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -51,6 +51,12 @@ public class AuthServiceImpl implements AuthService {
         // Create correct subtype — JPA routes to the right table
         User user = switch (req.getRole()) {
             case BORROWER -> {
+                int age = Period.between(req.getDateOfBirth(), LocalDate.now()).getYears();
+
+                if (age < 18 || age > 60) {
+                    throw new BusinessRuleException("Borrower must be between 18 and 60 years old.");
+                }
+
                 Borrower b = new Borrower();
                 b.setMonthlyIncome(req.getMonthlyIncome());
                 b.setPanNumber(req.getPanNumber());
@@ -104,9 +110,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("Successfully registered new user with email: {} and role: {}", saved.getEmail(), saved.getRole());
 
         return AuthResponse.builder()
-                .role(saved.getRole())
-                .name(saved.getName())
-                .email(saved.getEmail())
                 .build();
     }
 
@@ -130,9 +133,6 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .token(token)
-                .role(user.getRole())
-                .name(user.getName())
-                .email(user.getEmail())
                 .build();
     }
 

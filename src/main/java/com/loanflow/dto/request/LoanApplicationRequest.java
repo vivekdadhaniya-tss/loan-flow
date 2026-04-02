@@ -10,20 +10,17 @@ public class LoanApplicationRequest {
 
     @NotNull(message = "Requested amount is required")
     @Positive(message = "Amount must be positive")
+    @Min(value = 10000,   message = "Minimum requested amount is 10000")
     @DecimalMax(value = "50000000", message = "Amount exceeds maximum limit")
     private BigDecimal requestedAmount;
 
     @NotNull(message = "Tenure is required")
-    @Min(value = 1,   message = "Minimum tenure is 1 month")
-    @Max(value = 360, message = "Maximum tenure is 360 months")
+    @Min(value = 6,   message = "Minimum tenure is 6 month")
+    @Max(value = 85, message = "Maximum tenure is 85 months")
     private Integer tenureMonths;
 
     @NotNull(message = "Monthly income is required")
     @Positive(message = "Monthly income must be positive")
     private BigDecimal monthlyIncome;
 
-//    /** Self-declared external EMI obligations (outside this system) */
-//    @NotNull(message = "Existing EMI amount is required")
-//    @PositiveOrZero(message = "Existing EMI cannot be negative")
-//    private BigDecimal existingMonthlyEmi;
 }
