@@ -19,8 +19,6 @@ import org.springframework.stereotype.Component;
 public class CreditBureauProperties {
 
     private String baseUrl;
-
-    /** Milliseconds before HTTP call times out. Default: 3000ms */
     private int timeoutMs = 3000;
 }
 
