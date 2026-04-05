@@ -5,9 +5,6 @@ import com.loanflow.entity.Payment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Event published when a borrower successfully makes an EMI payment.
- */
 @Getter
 @AllArgsConstructor
 public class PaymentReceivedEvent {
