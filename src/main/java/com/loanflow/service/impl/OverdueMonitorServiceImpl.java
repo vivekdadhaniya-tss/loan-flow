@@ -2,11 +2,13 @@ package com.loanflow.service.impl;
 
 import com.loanflow.constants.LoanConstants;
 import com.loanflow.dto.request.AuditRequest;
+import com.loanflow.dto.response.BorrowerOverdueResponse;
 import com.loanflow.entity.EmiSchedule;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.OverdueTracker;
 import com.loanflow.enums.*;
 import com.loanflow.event.OverdueAlertEvent;
+import com.loanflow.mapper.OverdueTrackerMapper;
 import com.loanflow.repository.EmiScheduleRepository;
 import com.loanflow.repository.LoanRepository;
 import com.loanflow.repository.OverdueTrackerRepository;
@@ -25,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +40,17 @@ public class OverdueMonitorServiceImpl implements OverdueMonitorService {
     private final LoanStatusTransitionService loanStatusTransitionService;
     private final AuditService auditService;
     private final ApplicationEventPublisher eventPublisher;
+    private final OverdueTrackerMapper overdueTrackerMapper;
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<BorrowerOverdueResponse> getMyOverdues(Long id){
+        List<OverdueTracker> overdueTrackers = overdueTrackerRepository.findByBorrowerIdOrderByDueDateDesc(id);
+
+        return overdueTrackers.stream()
+                .map(overdueTrackerMapper :: toBorrowerResponse)
+                .collect(Collectors.toList());
+    }
 
     //  MAIN SCAN — called daily by OverdueScheduler at 1AM
     @Override

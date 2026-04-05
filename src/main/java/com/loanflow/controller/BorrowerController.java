@@ -1,10 +1,7 @@
 package com.loanflow.controller;
 import com.loanflow.dto.request.LoanApplicationRequest;
-import com.loanflow.dto.response.ApiResponse;
-import com.loanflow.dto.response.BorrowerApplicationResponse;
-import com.loanflow.dto.response.EmiScheduleResponse;
+import com.loanflow.dto.response.*;
 //import com.loanflow.dto.response.LoanApplicationResponse;
-import com.loanflow.dto.response.LoanResponse;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.user.User;
 import com.loanflow.enums.Role;
@@ -13,6 +10,7 @@ import com.loanflow.security.SecurityUtils;
 import com.loanflow.service.EmiScheduleService;
 import com.loanflow.service.LoanApplicationService;
 import com.loanflow.service.LoanService;
+import com.loanflow.service.OverdueMonitorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +24,15 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @PreAuthorize("hasRole('BORROWER')")
+@RequestMapping("/api/v1")
 public class BorrowerController {
     private final LoanApplicationService loanApplicationService;
     private final LoanService loanService;
     private final EmiScheduleService emiScheduleService;
     private final SecurityUtils securityUtils;
+    private final OverdueMonitorService overdueMonitorService;
 
-    @PostMapping("/api/v1/borrower/applications")
+    @PostMapping("/borrower/applications")
     public ResponseEntity<ApiResponse<BorrowerApplicationResponse>> applyLoan(
             @Valid @RequestBody LoanApplicationRequest request) {
 
@@ -46,7 +46,7 @@ public class BorrowerController {
                 .body(ApiResponse.created("Loan application submitted successfully.", response));
     }
 
-    @PutMapping("/api/v1/borrower/applications/{applicationNumber}/cancel")
+    @PutMapping("/borrower/applications/{applicationNumber}/cancel")
     public ResponseEntity<ApiResponse<Void>> cancelApplication(
             @PathVariable String applicationNumber) {
 
@@ -57,7 +57,7 @@ public class BorrowerController {
 
     }
 
-    @GetMapping("/api/v1/borrower/applications")
+    @GetMapping("/borrower/applications")
     public ResponseEntity<ApiResponse<List<BorrowerApplicationResponse>>> getMyApplications() {
 
         User borrower = securityUtils.getCurrentUser();
@@ -66,7 +66,7 @@ public class BorrowerController {
 
     }
 
-    @GetMapping("/api/v1/borrower/loans")
+    @GetMapping("/borrower/loans")
     public ResponseEntity<ApiResponse<List<LoanResponse>>> getMyLoans() {
 
         User borrower = securityUtils.getCurrentUser();
@@ -75,7 +75,7 @@ public class BorrowerController {
 
     }
 
-    @GetMapping({"/api/v1/borrower/loans/{loanNumber}/schedule", "/api/v1/loans/{loanNumber}/schedule"})
+    @GetMapping({"/borrower/loans/{loanNumber}/schedule", "/loans/{loanNumber}/schedule"})
     @PreAuthorize("hasAnyRole('BORROWER', 'LOAN_OFFICER')")
     public ResponseEntity<ApiResponse<List<EmiScheduleResponse>>> getEmiSchedule(
             @PathVariable String loanNumber) {
@@ -90,5 +90,15 @@ public class BorrowerController {
         List<EmiScheduleResponse> schedule = emiScheduleService.getScheduleByLoanNumber(loanNumber);
         return ResponseEntity.ok(ApiResponse.ok("EMI Schedule fetched successfully.", schedule));
 
+    }
+
+    @GetMapping("/borrower/overdues")
+    @PreAuthorize("hasRole('BORROWER')")
+    public ResponseEntity<ApiResponse<List<BorrowerOverdueResponse>>> getMyOverdues(){
+        User borrower = securityUtils.getCurrentUser();
+
+        List<BorrowerOverdueResponse> responseList = overdueMonitorService.getMyOverdues(borrower.getId());
+
+        return ResponseEntity.ok(ApiResponse.ok("Loans fetched successfully" , responseList));
     }
 }
