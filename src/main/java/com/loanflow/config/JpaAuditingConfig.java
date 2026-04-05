@@ -17,15 +17,12 @@ public class JpaAuditingConfig {
     @Bean
     public AuditorAware<String> auditorProvider() {
         return () -> {
-            // 1. Get the current security context
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            // 2. If no user is logged in (e.g., system jobs or registration), return "SYSTEM"
             if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
                 return Optional.of("SYSTEM");
             }
 
-            // 3. Extract the email/username and return it for Hibernate to inject into @CreatedBy
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserDetails) {
                 return Optional.of(((UserDetails) principal).getUsername());

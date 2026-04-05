@@ -9,11 +9,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableScheduling
 public class SchedulingConfig {
 
-    /**
-     * Configures a custom Thread Pool for background tasks.
-     * This ensures that if the Notification Scheduler is busy sending emails,
-     * the Payment Reminder Scheduler can still run simultaneously on a different thread.
-     */
     @Bean
     public ThreadPoolTaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();

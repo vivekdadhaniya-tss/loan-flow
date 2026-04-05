@@ -24,19 +24,10 @@ public final class SecurityConstants {
 
     // Public endpoints
     // Used by SecurityConfig — add new public URLs here only
-
-    /**
-     * Endpoints that bypass JWT authentication entirely.
-     * SecurityConfig.filterChain() reads this array directly.
-     * Never scatter permitAll() calls across multiple places.
-     */
     public static final String[] PUBLIC_URLS = {
             "/api/v1/auth/register",
             "/api/v1/auth/login",
-            "/actuator/health",
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/actuator/health"
     };
 }
 
