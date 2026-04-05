@@ -7,6 +7,7 @@ import com.loanflow.entity.user.User;
 import com.loanflow.security.SecurityUtils;
 import com.loanflow.service.LoanApplicationService;
 import com.loanflow.service.LoanService;
+import com.loanflow.service.OverdueMonitorService;
 import com.loanflow.service.ReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class OfficerController {
     private final LoanApplicationService loanApplicationService;
     private final LoanService loanService;
     private final ReportService reportService;
+    private final OverdueMonitorService overdueMonitorService;
     private final SecurityUtils securityUtils;
 
     @GetMapping("/applications")
@@ -45,6 +47,15 @@ public class OfficerController {
         String message = result != null ? "Loan application approved." : "Loan application rejected.";
 
         return ResponseEntity.ok(ApiResponse.ok(message, result));
+    }
+
+    @GetMapping("/overdues")
+    @PreAuthorize("hasRole('LOAN_OFFICER')")
+    public ResponseEntity<ApiResponse<List<OverdueTrackerResponse>>> getAllOverdues() {
+
+        List<OverdueTrackerResponse> overdueTrackerResponses=  overdueMonitorService.getAllSystemOverdues();
+
+        return ResponseEntity.ok(ApiResponse.ok(overdueTrackerResponses));
     }
 
     @GetMapping("/reports/overdue")

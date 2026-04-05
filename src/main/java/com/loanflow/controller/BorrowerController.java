@@ -99,6 +99,6 @@ public class BorrowerController {
 
         List<BorrowerOverdueResponse> responseList = overdueMonitorService.getMyOverdues(borrower.getId());
 
-        return ResponseEntity.ok(ApiResponse.ok("Loans fetched successfully" , responseList));
+        return ResponseEntity.ok(ApiResponse.ok("Overdues fetched successfully" , responseList));
     }
 }
