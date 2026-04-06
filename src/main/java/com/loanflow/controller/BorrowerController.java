@@ -14,6 +14,7 @@ import com.loanflow.service.OverdueMonitorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -75,22 +76,45 @@ public class BorrowerController {
 
     }
 
-    @GetMapping({"/borrower/loans/{loanNumber}/schedule", "/loans/{loanNumber}/schedule"})
+    @GetMapping("/borrower/loans/{loanNumber}/schedule")
     @PreAuthorize("hasAnyRole('BORROWER', 'LOAN_OFFICER')")
-    public ResponseEntity<ApiResponse<List<EmiScheduleResponse>>> getEmiSchedule(
-            @PathVariable String loanNumber) {
+    public ResponseEntity<ApiResponse<Page<EmiScheduleResponse>>> getEmiSchedule(
+            @PathVariable String loanNumber,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         User currentUser = securityUtils.getCurrentUser();
         log.debug("Fetching EMI schedule for loan {} by user {}", loanNumber, currentUser.getEmail());
+
         Loan loan = loanService.findByLoanNumber(loanNumber);
-        // Borrowers may only view their own loan schedules; loan officers can view any
+
+        // Security check
         if (Role.BORROWER.equals(currentUser.getRole()) && !loan.getBorrower().getId().equals(currentUser.getId())) {
             throw new UnauthorizedAccessException("You can only view your own loan schedules.");
         }
-        List<EmiScheduleResponse> schedule = emiScheduleService.getScheduleByLoanNumber(loanNumber);
-        return ResponseEntity.ok(ApiResponse.ok("EMI Schedule fetched successfully.", schedule));
 
+        // Pass pagination parameters to the service
+        Page<EmiScheduleResponse> schedule = emiScheduleService.getScheduleByLoanNumber(loanNumber, page, size);
+
+        return ResponseEntity.ok(ApiResponse.ok("EMI Schedule fetched successfully.", schedule));
     }
+
+//    @GetMapping({"/borrower/loans/{loanNumber}/schedule", "/loans/{loanNumber}/schedule"})
+//    @PreAuthorize("hasAnyRole('BORROWER', 'LOAN_OFFICER')")
+//    public ResponseEntity<ApiResponse<List<EmiScheduleResponse>>> getEmiSchedule(
+//            @PathVariable String loanNumber) {
+//
+//        User currentUser = securityUtils.getCurrentUser();
+//        log.debug("Fetching EMI schedule for loan {} by user {}", loanNumber, currentUser.getEmail());
+//        Loan loan = loanService.findByLoanNumber(loanNumber);
+//        // Borrowers may only view their own loan schedules; loan officers can view any
+//        if (Role.BORROWER.equals(currentUser.getRole()) && !loan.getBorrower().getId().equals(currentUser.getId())) {
+//            throw new UnauthorizedAccessException("You can only view your own loan schedules.");
+//        }
+//        List<EmiScheduleResponse> schedule = emiScheduleService.getScheduleByLoanNumber(loanNumber);
+//        return ResponseEntity.ok(ApiResponse.ok("EMI Schedule fetched successfully.", schedule));
+//
+//    }
 
     @GetMapping("/borrower/overdues")
     @PreAuthorize("hasRole('BORROWER')")

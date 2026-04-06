@@ -35,7 +35,6 @@ public class OfficerController {
         return ResponseEntity.ok(ApiResponse.ok(loanApplicationService.getPendingApplications()));
     }
 
-
     @PutMapping("/approve/{applicationNumber}")
     @PreAuthorize("hasRole('LOAN_OFFICER')")
     public ResponseEntity<ApiResponse<LoanResponse>> decide(

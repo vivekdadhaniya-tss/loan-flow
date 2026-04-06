@@ -3,6 +3,7 @@ package com.loanflow.repository;
 import com.loanflow.entity.EmiSchedule;
 import com.loanflow.entity.Loan;
 import com.loanflow.enums.EmiStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,8 @@ import java.util.List;
 
 @Repository
 public interface EmiScheduleRepository extends JpaRepository<EmiSchedule, Long> {
+
+    Page<EmiSchedule> findByLoanOrderByInstallmentNumberAsc(Loan loan, Pageable pageable);
 
     // Amortization table for a loan
     List<EmiSchedule> findByLoanOrderByInstallmentNumberAsc(Loan loan);
