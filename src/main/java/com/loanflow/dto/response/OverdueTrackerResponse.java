@@ -8,13 +8,10 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class OverdueTrackerResponse {
 
-    private Long id;
+    private String loanNumber;
 
-    private Long loanId;
+    private Integer installmentNumber;
 
-    private Long emiScheduleId;
-
-    /** Borrower full name — denormalised for officer convenience */
     private String borrowerName;
 
     private String borrowerEmail;
@@ -25,7 +22,6 @@ public class OverdueTrackerResponse {
 
     private BigDecimal fixedPenaltyAmount;
 
-    /////****** ADDED  ********/////////
     private BigDecimal penaltyRate;
 
     private BigDecimal penaltyCharge;

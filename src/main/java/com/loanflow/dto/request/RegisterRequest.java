@@ -37,7 +37,6 @@ public class RegisterRequest {
 
     private String occupation;
 
-    @NotNull(message = "Date of birth is required")
     @Past(message = "Date of birth must be a past date")
     private LocalDate dateOfBirth;
 
