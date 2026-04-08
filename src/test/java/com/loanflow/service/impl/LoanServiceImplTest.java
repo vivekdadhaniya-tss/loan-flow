@@ -253,17 +253,17 @@ class LoanServiceImplTest {
     void getMyLoans_Success() {
         // Arrange
         List<Loan> loans = List.of(new Loan(), new Loan());
-        when(loanRepository.findByBorrowerOrderByCreatedAtDesc(borrower)).thenReturn(loans);
+        when(loanRepository.findByBorrowerIdOrderByCreatedAtDesc(borrower.getId())).thenReturn(loans);
 
         List<LoanResponse> mappedResponses = List.of(new LoanResponse(), new LoanResponse());
         when(loanMapper.toResponseList(loans)).thenReturn(mappedResponses);
 
         // Act
-        List<LoanResponse> result = loanService.getMyLoans(borrower);
+        List<LoanResponse> result = loanService.getMyLoans(borrower.getId());
 
         // Assert
         assertThat(result).hasSize(2);
-        verify(loanRepository).findByBorrowerOrderByCreatedAtDesc(borrower);
+        verify(loanRepository).findByBorrowerIdOrderByCreatedAtDesc(borrower.getId());
     }
 
     @Test
