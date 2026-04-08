@@ -11,6 +11,9 @@ import com.loanflow.service.EmiScheduleService;
 import com.loanflow.strategy.EmiCalculationStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,25 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
     private final EmiScheduleRepository emiScheduleRepository;
     private final LoanRepository loanRepository;
     private final EmiScheduleMapper emiScheduleMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber, int page, int size) {
+
+        Loan loan = loanRepository.findByLoanNumber(loanNumber)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Loan not found: " + loanNumber));
+
+        // Create the Pageable object
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Fetch Paginated data from DB
+        Page<EmiSchedule> schedulePage = emiScheduleRepository
+                .findByLoanOrderByInstallmentNumberAsc(loan, pageable);
+
+        // Map the Entity Page to Response DTO Page
+        return schedulePage.map(emiScheduleMapper::toResponse);
+    }
 
     /**
      * Generates the full amortization schedule for a loan using the
@@ -72,13 +94,13 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
         return emiScheduleMapper.toResponseList(schedule);
     }
 
-    @Override
-    public List<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber) {
-        Loan loan = loanRepository.findByLoanNumber(loanNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Loan not found: " + loanNumber));
-        List<EmiSchedule> schedule =
-                emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
-        return emiScheduleMapper.toResponseList(schedule);
-    }
+//    @Override
+//    public List<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber) {
+//        Loan loan = loanRepository.findByLoanNumber(loanNumber)
+//                .orElseThrow(() -> new ResourceNotFoundException(
+//                        "Loan not found: " + loanNumber));
+//        List<EmiSchedule> schedule =
+//                emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
+//        return emiScheduleMapper.toResponseList(schedule);
+//    }
 }
