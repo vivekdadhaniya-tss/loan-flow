@@ -10,10 +10,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LoanStrategyFactory {
 
-    private final Map<LoanStrategy, EmiCalculationStrategy> strategyMap;
+    private final Map<String, EmiCalculationStrategy> strategyMap;
 
     public EmiCalculationStrategy resolve(LoanStrategy strategy) {
-        EmiCalculationStrategy resolved = strategyMap.get(strategy);
+        EmiCalculationStrategy resolved = strategyMap.get(strategy.name());
         if (resolved == null) {
             throw new IllegalArgumentException("No strategy found for: " + strategy);
         }

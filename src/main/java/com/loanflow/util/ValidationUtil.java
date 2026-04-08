@@ -1,10 +1,8 @@
 package com.loanflow.util;
 
-import com.loanflow.entity.EmiSchedule;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.LoanApplication;
 import com.loanflow.enums.ApplicationStatus;
-import com.loanflow.enums.EmiStatus;
 import com.loanflow.enums.LoanStatus;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.InvalidStatusTransitionException;
@@ -15,23 +13,6 @@ public final class ValidationUtil {
     private ValidationUtil() {}
 
     // Payment guards
-
-    /**
-     * Prevents paying an EMI that is already PAID.
-     * Called by PaymentService.simulatePayment() before creating
-     * a Payment record.
-     *
-     * This is the service-layer guard — the DB-level guard is the
-     * unique constraint on Payment.emiSchedule.
-     */
-    public static void ensureEmiNotAlreadyPaid(EmiSchedule emiSchedule) {
-        if (emiSchedule.getStatus() == EmiStatus.PAID) {
-            throw new BusinessRuleException(
-                    "Installment " + emiSchedule.getInstallmentNumber()
-                            + " is already marked as paid.");
-        }
-    }
-
     public static void ensureLoanIsActive(Loan loan) {
         if (loan.getStatus() != LoanStatus.ACTIVE) {
             throw new BusinessRuleException(
