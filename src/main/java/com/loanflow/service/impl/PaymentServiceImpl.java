@@ -123,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
                             overdueTrackerRepository.save(tracker);
 
                             loan.setOverDueCount(Math.max(0, loan.getOverDueCount() - 1));
-//                            loanRepository.save(loan);
+                            loanRepository.save(loan);
                         });
             }
 

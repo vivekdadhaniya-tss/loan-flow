@@ -13,6 +13,7 @@ import com.loanflow.exception.ResourceNotFoundException;
 import com.loanflow.repository.LoanOfficerRepository;
 import com.loanflow.repository.UserRepository;
 import com.loanflow.security.JwtTokenProvider;
+import com.loanflow.security.SecurityUtils;
 import com.loanflow.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional
@@ -47,6 +49,10 @@ public class AuthServiceImpl implements AuthService {
 
         if (userRepository.existsByEmail(email)) {
             throw new BusinessRuleException("Email already registered: " + email);
+        }
+
+        if (req.getRole() == com.loanflow.enums.Role.LOAN_OFFICER && !securityUtils.hasRole("ADMIN")) {
+            throw new BusinessRuleException("Only an admin can register a loan officer.");
         }
 
         User user = switch (req.getRole()) {

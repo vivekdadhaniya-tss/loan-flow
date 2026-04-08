@@ -28,7 +28,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -258,8 +257,7 @@ public class OverdueMonitorServiceImpl implements OverdueMonitorService {
             BigDecimal totalPenaltyCharge = MoneyUtil.roundHalfUp(  // aaj tak ki penalty charge, not included fix penalty charge
                     LoanConstants.OVERDUE_DAILY_PENALTY_RATE
                             .multiply(BigDecimal.valueOf(daysOverdue))
-//                            .multiply(emi.getRemainingBalance())
-                            .multiply(emi.getTotalEmiAmount())
+                            .multiply(emi.getRemainingBalance())
             );
 
             tracker.setPenaltyCharge(totalPenaltyCharge);

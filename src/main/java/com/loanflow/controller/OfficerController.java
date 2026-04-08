@@ -37,13 +37,13 @@ public class OfficerController {
 
     @PutMapping("/approve/{applicationNumber}")
     @PreAuthorize("hasRole('LOAN_OFFICER')")
-    public ResponseEntity<ApiResponse<LoanResponse>> decide(
+    public ResponseEntity<ApiResponse<Object>> decide(
             @PathVariable String applicationNumber,
             @Valid @RequestBody LoanDecisionRequest request) {
         User officer = securityUtils.getCurrentUser();
 
-        LoanResponse result = loanService.processDecision(applicationNumber, request, officer);
-        String message = result != null ? "Loan application approved." : "Loan application rejected.";
+        Object result = loanService.processDecision(applicationNumber, request, officer);
+        String message = result instanceof LoanResponse ? "Loan application approved." : "Loan application rejected.";
 
         return ResponseEntity.ok(ApiResponse.ok(message, result));
     }

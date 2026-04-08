@@ -48,7 +48,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     private final LoanApplicationMapper loanApplicationMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    //  APPLY — Phase 1 (DTI_initial only)
+
     @Override
     @Transactional
     public BorrowerApplicationResponse apply(LoanApplicationRequest request, User borrower) {
@@ -96,8 +96,6 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         log.info("Borrower {} — DTI_initial: {}%", currentBorrower.getId(), dtiInitial);
 
         // 4. Suggest strategy from DTI_initial
-        // Returns null when DTI > 40% (high risk -> auto-reject)
-        // Returns FLAT / REDUCING / STEP_UP based on DTI range + tenure
         LoanStrategy suggested = dtiCalculationService.suggestStrategy(
                 dtiInitial, request.getTenureMonths());
 

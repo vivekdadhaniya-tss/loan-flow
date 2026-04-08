@@ -10,9 +10,9 @@ import java.util.*;
 public interface LoanService {
 
     // Officer processes loan application (approve/reject)
-    LoanResponse processDecision(String applicationNumber,
-                                 LoanDecisionRequest request,
-                                 User officer);
+    Object processDecision(String applicationNumber,
+                         LoanDecisionRequest request,
+                         User officer);
 
     // Close loan when all EMIs are paid
     void closeLoanIfCompleted(Loan loan);
