@@ -52,8 +52,8 @@ public class Loan extends BaseEntity {
     private BigDecimal interestRatePerAnnum;
 
     @NotNull
-    @Min(1)
-    @Max(360)
+    @Min(6)
+    @Max(85)
     @Column(nullable = false)
     private Integer tenureMonths;
 
@@ -72,7 +72,7 @@ public class Loan extends BaseEntity {
     private BigDecimal outstandingPrincipal;
 
     @NotNull
-    @Min(0) @Max(360)
+    @Min(0) @Max(85)
     @Column(nullable = false)
     private Integer overDueCount = 0;
 

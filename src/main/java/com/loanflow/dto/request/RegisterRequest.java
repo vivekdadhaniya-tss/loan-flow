@@ -45,12 +45,6 @@ public class RegisterRequest {
     // ── Officer-specific (required when role = LOAN_OFFICER) ──
     private String designation;
 
-    @PositiveOrZero
-    private Integer loansApprovedCount;
-
-    @PositiveOrZero
-    private Integer loansRejectedCount;
-
     // ── Admin-specific (required when role = ADMIN) ──
     private AdminAccessLevel accessLevel;
 
