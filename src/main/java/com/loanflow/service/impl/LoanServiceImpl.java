@@ -96,9 +96,7 @@ public class LoanServiceImpl implements LoanService {
         // AUTO-REJECT IF DTI > 40% (Overrides the Officer's approval)
         if (dtiFinal.compareTo(new BigDecimal("40.00")) > 0) {
             String autoRejectReason = String.format("System Auto-Reject: Final DTI with new loan exceeds 40%% (Calculated: %.2f%%)", dtiFinal);
-
             log.warn("Application {} automatically rejected by system due to high DTI: {}%", applicationNumber, dtiFinal);
-
             return executeRejection(application, autoRejectReason, officer, oldStatus);
         }
 

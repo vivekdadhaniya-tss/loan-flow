@@ -22,8 +22,9 @@ public final class LoanConstants {
     public static final int MAX_TENURE_MONTHS = 85;
 
     // Interest rate limits
-    // Used by: LoanDecisionRequest validation, LoanService
     public static final BigDecimal MAX_INTEREST_RATE_PA = new BigDecimal("36.00");
+    public static final String MAX_INTEREST_RATE_PA_STR = "36.00";
+
 
     // Step-Up EMI
     // Each new calendar year, EMI = previous-year EMI × STEP_UP_GROWTH_MULTIPLIER.

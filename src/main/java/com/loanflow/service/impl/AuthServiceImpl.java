@@ -43,65 +43,78 @@ public class AuthServiceImpl implements AuthService {
 
         log.debug("Processing registration for email: {}", req.getEmail());
 
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new BusinessRuleException(
-                    "Email already registered: " + req.getEmail());
+        String email = req.getEmail().trim().toLowerCase();
+
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessRuleException("Email already registered: " + email);
         }
 
-        // Create correct subtype — JPA routes to the right table
         User user = switch (req.getRole()) {
-            case BORROWER -> {
-                int age = Period.between(req.getDateOfBirth(), LocalDate.now()).getYears();
 
+            case BORROWER -> {
+                if (req.getDateOfBirth() == null) {
+                    throw new BusinessRuleException("Date of birth is required for borrower.");
+                }
+
+                int age = Period.between(req.getDateOfBirth(), LocalDate.now()).getYears();
                 if (age < 18 || age > 60) {
                     throw new BusinessRuleException("Borrower must be between 18 and 60 years old.");
                 }
 
+                if (req.getMonthlyIncome() == null || req.getMonthlyIncome().doubleValue() <= 0) {
+                    throw new BusinessRuleException("Monthly income must be greater than 0.");
+                }
+
+                if (req.getPanNumber() == null || req.getPanNumber().isBlank()) {
+                    throw new BusinessRuleException("PAN number is required for borrower.");
+                }
+
                 Borrower b = new Borrower();
                 b.setMonthlyIncome(req.getMonthlyIncome());
-                b.setPanNumber(req.getPanNumber());
-                b.setOccupation(req.getOccupation());
+                b.setPanNumber(req.getPanNumber().trim().toUpperCase());
+                b.setOccupation(req.getOccupation().trim());
                 b.setDateOfBirth(req.getDateOfBirth());
 
                 if (req.getAddress() != null) {
                     Address address = new Address();
-
                     address.setFlatNo(req.getAddress().getFlatNo());
                     address.setArea(req.getAddress().getArea());
                     address.setCity(req.getAddress().getCity());
                     address.setState(req.getAddress().getState());
                     address.setPincode(req.getAddress().getPincode());
 
-                    // Link BOTH sides of the relationship...
-                    address.setBorrower(b); // Tells the Address who its owner is
-                    b.setAddress(address);  // Tells the Borrower to hold the Address (saves the address_id)
+                    address.setBorrower(b);
+                    b.setAddress(address);
                 }
 
                 yield b;
-
             }
+
             case LOAN_OFFICER -> {
                 LoanOfficer o = new LoanOfficer();
                 o.setEmployeeId(generateEmployeeId());
-                o.setDesignation(req.getDesignation());
-
+                o.setDesignation(req.getDesignation().trim());
                 yield o;
             }
+
             case ADMIN -> {
+                if (req.getAccessLevel() == null) {
+                    throw new BusinessRuleException("Access level is required for admin.");
+                }
+
                 Admin a = new Admin();
                 a.setAccessLevel(req.getAccessLevel());
                 yield a;
             }
+
             default -> throw new BusinessRuleException("Cannot register user with role: " + req.getRole());
         };
 
-        // set common fields
-        user.setName(req.getName());
-        user.setEmail(req.getEmail());
+        user.setName(req.getName().trim());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
-        user.setPhone(req.getPhone());
+        user.setPhone(req.getPhone().trim());
         user.setRole(req.getRole());
-
         user.setActive(true);
         user.setDeleted(false);
 
@@ -110,7 +123,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("Successfully registered new user with email: {} and role: {}", saved.getEmail(), saved.getRole());
 
         return AuthResponse.builder()
-                .role(user.getRole())
+                .role(saved.getRole())
                 .build();
     }
 

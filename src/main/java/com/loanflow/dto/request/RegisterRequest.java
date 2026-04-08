@@ -9,7 +9,10 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RegisterRequest {
 
     @NotBlank(message = "Name is required")
@@ -29,7 +32,7 @@ public class RegisterRequest {
     @NotNull(message = "Role is required")
     private Role role;
 
-    // ── Borrower-specific (required when role = BORROWER) ──
+    // Borrower-specific (required when role = BORROWER)
     private BigDecimal monthlyIncome;
 
     @Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}", message = "Invalid PAN format")
@@ -42,10 +45,10 @@ public class RegisterRequest {
 
     private Address address;
 
-    // ── Officer-specific (required when role = LOAN_OFFICER) ──
+    // Officer-specific (required when role = LOAN_OFFICER)
     private String designation;
 
-    // ── Admin-specific (required when role = ADMIN) ──
+    // Admin-specific (required when role = ADMIN)
     private AdminAccessLevel accessLevel;
 
 }

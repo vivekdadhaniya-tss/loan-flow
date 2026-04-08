@@ -22,7 +22,7 @@ import java.util.List;
  * Interest = decreasing month by month.
  * Principal = increasing month by month.
  */
-@Component
+@Component("REDUCING_BALANCE_LOAN")
 public class ReducingBalanceStrategy implements EmiCalculationStrategy {
 
     @Override

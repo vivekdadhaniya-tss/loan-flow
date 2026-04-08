@@ -26,7 +26,7 @@ import java.util.List;
  * Interest portion decreases over time (on remaining balance)
  * Principal portion increases over time
  */
-@Component
+@Component("STEP_UP_EMI_LOAN")
 public class StepUpEmiStrategy implements EmiCalculationStrategy {
 
     @Override

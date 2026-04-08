@@ -22,11 +22,7 @@ public class AuditServiceImpl implements AuditService {
     private final AuditLogRepository auditLogRepository;
 
     private final AuditLogMapper auditLogMapper;
-    /**
-     * Records every state transition in the system.
-     * AuditLog.createdAt is set automatically at entity level.
-     * performedBy is null when actorRole = SYSTEM.
-     */
+
     public void log(AuditRequest request) {
 
         AuditLog entry = new AuditLog();

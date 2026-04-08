@@ -9,13 +9,7 @@ import com.loanflow.enums.LoanStatus;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.InvalidStatusTransitionException;
 
-import java.util.List;
 
-/**
- * Business-rule guards used inside service methods.
- * Each method throws a typed exception — the
- * GlobalExceptionHandler maps these to correct HTTP codes.
- */
 public final class ValidationUtil {
 
     private ValidationUtil() {}
