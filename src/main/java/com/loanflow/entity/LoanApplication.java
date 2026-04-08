@@ -45,7 +45,7 @@ public class LoanApplication extends BaseEntity {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal requestedAmount;
 
-    @NotNull @Min(1) @Max(360)
+    @NotNull @Min(1) @Max(85)
     @Column(nullable = false)
     private Integer tenureMonths;
 

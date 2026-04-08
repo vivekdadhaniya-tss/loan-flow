@@ -32,7 +32,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class LoanServiceImpl implements LoanService {
@@ -49,11 +48,11 @@ public class LoanServiceImpl implements LoanService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    // officer approve or reject loan application
+    @Transactional
     public LoanResponse processDecision(
             String applicationNumber, LoanDecisionRequest request, User officer) {
 
-        // 1. Fetch application and validate
+        // fetch application and validate
         LoanApplication application = loanApplicationRepository
                 .findByApplicationNumber(applicationNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Loan Application not found: " + applicationNumber));
@@ -62,31 +61,11 @@ public class LoanServiceImpl implements LoanService {
 
         application.setReviewedBy(officer);
         application.setReviewedAt(LocalDateTime.now());
-
         String oldStatus = application.getStatus().name();
 
-        if(!request.getApproved()) {
-            // reject application
-            application.setStatus(ApplicationStatus.REJECTED);
-            application.setRejectionReason(request.getRejectionReason());
-            loanApplicationRepository.save(application);
-
-            auditService.log(AuditRequest.builder()
-                            .entityType(EntityType.LOAN_APPLICATION)
-                            .entityId(application.getId())
-                            .action("REJECTED")
-                            .oldStatus(oldStatus)
-                            .newStatus(ApplicationStatus.REJECTED.name())
-                            .performedBy(officer)
-                            .actorRole(officer.getRole())
-                            .remarks(request.getRejectionReason())
-                            .build());
-
-            eventPublisher.publishEvent(
-                    new LoanDecisionEvent(null, application,
-                            ApplicationStatus.REJECTED, request.getRejectionReason()));
-
-            return null;   // no loan created on rejection
+        // if officer explicitly rejected it manually
+        if (!request.getApproved()) {
+            return executeRejection(application, request.getRejectionReason(), officer, oldStatus);
         }
 
         // approve application
@@ -98,56 +77,54 @@ public class LoanServiceImpl implements LoanService {
             throw new BusinessRuleException("No valid loan strategy available");
         }
 
-        // calculate internal and external emi before saved loan for repeat emi
-        BigDecimal internalEmi = loanRepository
-                .sumActiveMonthlyEmi(application.getBorrower().getId())
-                .orElse(BigDecimal.ZERO);
+        BigDecimal internalEmi = loanRepository.sumActiveMonthlyEmi(application.getBorrower().getId()).orElse(BigDecimal.ZERO);
         BigDecimal externalEmi = application.getExistingMonthlyEmi();
 
+        // Create a temporary loan object in memory just to calculate the EMI (Do NOT save it yet)
+        Loan tempLoan = new Loan();
+        tempLoan.setApprovedAmount(application.getRequestedAmount());
+        tempLoan.setInterestRatePerAnnum(request.getInterestRatePerAnnum());
+        tempLoan.setTenureMonths(application.getTenureMonths());
+
+        EmiCalculationStrategy strategy = loanStrategyFactory.resolve(finalStrategy);
+        BigDecimal baseEmi = strategy.calculateBaseEmi(tempLoan);
+
+        // Calculate DTI
+        BigDecimal dtiFinal = dtiCalculationService.calculateFinalDti(
+                internalEmi, externalEmi, baseEmi, application.getMonthlyIncome());
+
+        // AUTO-REJECT IF DTI > 40% (Overrides the Officer's approval)
+        if (dtiFinal.compareTo(new BigDecimal("40.00")) > 0) {
+            String autoRejectReason = String.format("System Auto-Reject: Final DTI with new loan exceeds 40%% (Calculated: %.2f%%)", dtiFinal);
+
+            log.warn("Application {} automatically rejected by system due to high DTI: {}%", applicationNumber, dtiFinal);
+
+            return executeRejection(application, autoRejectReason, officer, oldStatus);
+        }
 
         application.setFinalStrategy(finalStrategy);
         application.setStatus(ApplicationStatus.APPROVED);
         loanApplicationRepository.save(application);
 
-        // create loan entity
-        Loan loan = new Loan();
-        loan.setLoanNumber(generateLoanNumber());
-        loan.setApplication(application);
-        loan.setBorrower(application.getBorrower());
-        loan.setApprovedBy(officer);
-        loan.setApprovedAmount(application.getRequestedAmount());
-        loan.setInterestRatePerAnnum(request.getInterestRatePerAnnum());
-        loan.setTenureMonths(application.getTenureMonths());
-        loan.setStrategy(finalStrategy);
-        loan.setStatus(LoanStatus.ACTIVE);
-        loan.setDisbursedAt(LocalDateTime.now());
-        loan.setOutstandingPrincipal(application.getRequestedAmount());
+        // Now finalize the loan details
+        tempLoan.setLoanNumber(generateLoanNumber());
+        tempLoan.setApplication(application);
+        tempLoan.setBorrower(application.getBorrower());
+        tempLoan.setApprovedBy(officer);
+        tempLoan.setStrategy(finalStrategy);
+        tempLoan.setStatus(LoanStatus.ACTIVE);
+        tempLoan.setDisbursedAt(LocalDateTime.now());
+        tempLoan.setOutstandingPrincipal(application.getRequestedAmount());
+        tempLoan.setMonthlyEmi(baseEmi);
 
-        // FIX: calculate monthlyEmi BEFORE saving the loan to avoid NOT NULL constraint violation
-        EmiCalculationStrategy strategy = loanStrategyFactory.resolve(finalStrategy);
-        BigDecimal baseEmi = strategy.calculateBaseEmi(loan);
-        loan.setMonthlyEmi(baseEmi);
-
-        Loan savedLoan = loanRepository.save(loan);
+        Loan savedLoan = loanRepository.save(tempLoan);
 
         // generate and persist the full amortization schedule
         emiScheduleService.generateSchedule(savedLoan, strategy);
 
-        // calculate final dti for officer context
-        BigDecimal dtiFinal = dtiCalculationService.calculateFinalDti(
-                internalEmi,
-                externalEmi,
-                baseEmi,
-                application.getMonthlyIncome());
+        log.info("Loan {} approved successfully - DTI_final: {}%", savedLoan.getId(), dtiFinal);
 
-//        // Enforce the 40% DTI Rule
-//        if (dtiFinal.compareTo(new BigDecimal("40.00")) > 0) {
-//            throw new BusinessRuleException("Cannot approve: Final DTI with new loan exceeds 40% (Calculated: " + dtiFinal + "%). Please reject or reduce loan amount.");
-//        }
-
-        log.info("Loan {} - DTI_final: {}%", savedLoan.getId(), dtiFinal);
-
-        // audit for loan application
+        // Audit for loan application
         auditService.log(AuditRequest.builder()
                 .entityType(EntityType.LOAN_APPLICATION)
                 .entityId(application.getId())
@@ -159,7 +136,7 @@ public class LoanServiceImpl implements LoanService {
                 .remarks("Strategy: " + finalStrategy + ", DTI_final: " + dtiFinal + "%")
                 .build());
 
-        // audit for loan creation
+        // Audit for loan creation
         auditService.log(AuditRequest.builder()
                 .entityType(EntityType.LOAN)
                 .entityId(savedLoan.getId())
@@ -170,12 +147,30 @@ public class LoanServiceImpl implements LoanService {
                 .remarks("Loan created from application " + application.getId())
                 .build());
 
-        eventPublisher.publishEvent(
-                new LoanDecisionEvent(savedLoan, application,
-                        ApplicationStatus.APPROVED, null));
-
+        eventPublisher.publishEvent(new LoanDecisionEvent(savedLoan, application, ApplicationStatus.APPROVED, null));
 
         return loanMapper.toResponse(savedLoan);
+    }
+
+    private LoanResponse executeRejection(LoanApplication application, String reason, User officer, String oldStatus) {
+        application.setStatus(ApplicationStatus.REJECTED);
+        application.setRejectionReason(reason);
+        loanApplicationRepository.save(application);
+
+        auditService.log(AuditRequest.builder()
+                .entityType(EntityType.LOAN_APPLICATION)
+                .entityId(application.getId())
+                .action("REJECTED")
+                .oldStatus(oldStatus)
+                .newStatus(ApplicationStatus.REJECTED.name())
+                .performedBy(officer)
+                .actorRole(officer.getRole())
+                .remarks(reason)
+                .build());
+
+        eventPublisher.publishEvent(new LoanDecisionEvent(null, application, ApplicationStatus.REJECTED, reason));
+
+        return null;   // No loan created, returns null
     }
 
     private String generateLoanNumber() {
@@ -189,6 +184,7 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
+    @Transactional
     public void closeLoanIfCompleted(Loan loan) {
         Long unpaidCount = emiScheduleRepository
                 .countByLoanAndStatusNot(loan, EmiStatus.PAID);
@@ -205,8 +201,8 @@ public class LoanServiceImpl implements LoanService {
     }
 
     @Override
-    public List<LoanResponse> getMyLoans(User borrower) {
-        List<Loan> loans = loanRepository.findByBorrowerOrderByCreatedAtDesc(borrower);
+    public List<LoanResponse> getMyLoans(Long borrowerId) {
+        List<Loan> loans = loanRepository.findByBorrowerIdOrderByCreatedAtDesc(borrowerId);
         return loanMapper.toResponseList(loans);
     }
 

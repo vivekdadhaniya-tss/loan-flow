@@ -35,11 +35,6 @@ public class PaymentReminderScheduler {
         List<EmiSchedule> upcoming = emiScheduleRepository
                 .findUpcomingEmisWithBorrower(EmiStatus.PENDING, reminderDate);
 
-
-//        List<EmiSchedule> upcoming =
-//                emiScheduleRepository.findByStatusAndDueDateBetween(
-//                        EmiStatus.PENDING, reminderDate, reminderDate);
-
         log.info("Payment reminder scheduler executed: {} EMIs due on {}", upcoming.size(), reminderDate);
 
         upcoming.forEach(emi ->
