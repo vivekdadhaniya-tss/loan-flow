@@ -16,19 +16,22 @@ import java.util.Optional;
 @Repository
 public interface OverdueTrackerRepository extends JpaRepository<OverdueTracker, Long> {
 
+    List<OverdueTracker> findAllByOrderByDueDateDesc();
+
+    List<OverdueTracker> findByBorrowerIdOrderByDueDateDesc(Long borrowerId);
+
     Optional<OverdueTracker> findByEmiSchedule(EmiSchedule emiSchedule);
 
     // All unresolved overdue tracker records across all loans
     List<OverdueTracker> findByResolvedAtIsNull();
 
     // All unresolved overdue records for a loan
-    List<OverdueTracker> findByLoanAndResolvedAtIsNull(Loan loan);
+//    List<OverdueTracker> findByLoanAndResolvedAtIsNull(Loan loan);
 
     // Count of currently active overdue EMIs.
     // resolvedAt IS NULL = payment has NOT been made yet.
     //Used by ReportService.getOverdueSummary().
     long countByResolvedAtIsNull();
-
 
     // Total outstanding penalty for officer dashboard
     @Query("""

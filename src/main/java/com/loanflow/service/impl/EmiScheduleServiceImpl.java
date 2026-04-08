@@ -11,6 +11,9 @@ import com.loanflow.service.EmiScheduleService;
 import com.loanflow.strategy.EmiCalculationStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +29,32 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
     private final LoanRepository loanRepository;
     private final EmiScheduleMapper emiScheduleMapper;
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber, int page, int size) {
+
+        Loan loan = loanRepository.findByLoanNumber(loanNumber)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Loan not found: " + loanNumber));
+
+        // Create the Pageable object
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Fetch Paginated data from DB
+        Page<EmiSchedule> schedulePage = emiScheduleRepository
+                .findByLoanOrderByInstallmentNumberAsc(loan, pageable);
+
+        // Map the Entity Page to Response DTO Page
+        return schedulePage.map(emiScheduleMapper::toResponse);
+    }
+
     /**
-     * returns the first installment's totalEmiAmount as the base EMI.
+     * Generates the full amortization schedule for a loan using the
+     * given strategy, bulk-saves all installments, and returns the
+     * first installment's totalEmiAmount as the base EMI.
+     *
      * Called by LoanServiceImpl.processDecision() after loan creation.
-     * returned baseEmi is stored on Loan.monthlyEmi.
+     * The returned baseEmi is stored on Loan.monthlyEmi.
      */
     @Override
     @Transactional
@@ -45,10 +70,16 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
                 schedule.size(), loan.getId());
 
         // Return installment 1 amount — this is stored as Loan.monthlyEmi
+        // For StepUp: this is the BASE EMI (year 1), not the stepped-up amounts
+        // For Flat/Reducing: all months have the same EMI, so installment 1 is fine
         return schedule.get(0).getTotalEmiAmount();
     }
 
-
+    /**
+     * Returns the complete amortization table for a loan,
+     * ordered by installment number ascending (1 → N).
+     * Used by BorrowerController and OfficerController.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<EmiScheduleResponse> getScheduleByLoan(Long loanId) {
@@ -57,16 +88,19 @@ public class EmiScheduleServiceImpl implements EmiScheduleService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Loan not found: " + loanId));
 
-        List<EmiSchedule> schedule = emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
+        List<EmiSchedule> schedule =
+                emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
+
         return emiScheduleMapper.toResponseList(schedule);
     }
 
-    @Override
-    public List<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber) {
-        Loan loan = loanRepository.findByLoanNumber(loanNumber)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Loan not found: " + loanNumber));
-        List<EmiSchedule> schedule = emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
-        return emiScheduleMapper.toResponseList(schedule);
-    }
+//    @Override
+//    public List<EmiScheduleResponse> getScheduleByLoanNumber(String loanNumber) {
+//        Loan loan = loanRepository.findByLoanNumber(loanNumber)
+//                .orElseThrow(() -> new ResourceNotFoundException(
+//                        "Loan not found: " + loanNumber));
+//        List<EmiSchedule> schedule =
+//                emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(loan);
+//        return emiScheduleMapper.toResponseList(schedule);
+//    }
 }
