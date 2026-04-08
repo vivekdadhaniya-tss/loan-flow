@@ -20,7 +20,7 @@ public final class ValidationUtil {
 
     private ValidationUtil() {}
 
-    // ── Payment guards ─────────────────────────────────────────────
+    // Payment guards
 
     /**
      * Prevents paying an EMI that is already PAID.
@@ -51,7 +51,7 @@ public final class ValidationUtil {
         }
     }
 
-    // ── Application guards ─────────────────────────────────────────
+    // Application guards
 
     /**
      * Prevents an officer from acting on an application that is

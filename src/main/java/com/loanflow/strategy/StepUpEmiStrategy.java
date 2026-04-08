@@ -16,11 +16,10 @@ import java.util.List;
 /**
  * STEP-UP EMI: EMI increases by 5% every year
  *
- * Year 1: BASE_EMI * (1 + 0.05) ^ 0 = BASE_EMI (using reducing balance formula)
+ * Year 1: BASE_EMI * (1 + 0.05) ^ 0
  * Year 2: BASE_EMI * (1 + 0.05) ^ 1
  * Year 3: BASE_EMI * (1 + 0.05) ^ 2
  *
- * BASE_EMI = calculated using reducing balance formula
  */
 @Component
 public class StepUpEmiStrategy implements EmiCalculationStrategy {
@@ -28,8 +27,12 @@ public class StepUpEmiStrategy implements EmiCalculationStrategy {
     @Override
     public BigDecimal calculateBaseEmi(Loan loan) {
         BigDecimal monthlyRate = EmiCalculationUtil.calculateMonthlyRate(loan.getInterestRatePerAnnum());
-        return EmiCalculationUtil.calculateReducingBalanceEmi(
-                loan.getApprovedAmount(), monthlyRate, loan.getTenureMonths());
+        return EmiCalculationUtil.calculateStepUpBaseEmi(
+                loan.getApprovedAmount(),
+                monthlyRate,
+                loan.getTenureMonths(),
+                LoanConstants.STEP_UP_ANNUAL_RATE
+        );
     }
 
     @Override

@@ -4,11 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Date arithmetic helpers.
- * All date logic lives here — schedulers and strategies
- * never compute dates inline.
- */
 public final class DateUtil {
 
     private DateUtil() {}
@@ -16,7 +11,7 @@ public final class DateUtil {
     private static final DateTimeFormatter DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("dd MMM yyyy");
 
-    // ── EMI due date generation ────────────────────────────────────
+    // EMI due date generation
 
     /**
      * Computes the due date for installment N.
@@ -39,7 +34,7 @@ public final class DateUtil {
         return disbursedOn.plusMonths(installmentNum);
     }
 
-    // ── Scheduler helpers ──────────────────────────────────────────
+    // Scheduler helpers
 
     /**
      * Returns true if the given date is strictly before today.
@@ -55,7 +50,7 @@ public final class DateUtil {
      * Returns a date N days from today.
      * Used by PaymentReminderScheduler:
      *   daysFromToday(LoanConstants.PAYMENT_REMINDER_DAYS_BEFORE)
-     *   → finds all EMIs due exactly 3 days from now.
+     *   -> finds all EMIs due exactly 3 days from now.
      *
      * @param days number of days ahead
      */
@@ -75,17 +70,7 @@ public final class DateUtil {
         return (int) ChronoUnit.DAYS.between(from, to);
     }
 
-    // ── Formatting ─────────────────────────────────────────────────
-
-    /**
-     * Formats a date for use in Thymeleaf email templates.
-     * Example: 2025-04-15 → "15 Apr 2025"
-     *
-     * Used by NotificationService when building the email model.
-     *
-     * @param date the date to format
-     * @return human-readable date string
-     */
+    // Formatting
     public static String format(LocalDate date) {
         if (date == null) return "";
         return date.format(DISPLAY_FORMAT);
