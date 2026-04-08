@@ -15,11 +15,13 @@ import java.util.List;
 
 /**
  * REDUCING BALANCE: interest on OUTSTANDING("Kitna loan abhi bhi baki hai") principal each month.
+ *
+ * EMI = P × r × (1+r)^n / ((1+r)^n - 1)
+ *
  * EMI = same every month (fixed by formula).
  * Interest = decreasing month by month.
  * Principal = increasing month by month.
  */
-
 @Component
 public class ReducingBalanceStrategy implements EmiCalculationStrategy {
 

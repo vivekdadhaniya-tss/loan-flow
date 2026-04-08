@@ -38,11 +38,6 @@ public final class ValidationUtil {
         }
     }
 
-    /**
-     * Ensures the loan is ACTIVE before accepting any payment.
-     * A CLOSED or DEFAULTED loan must not receive new payments
-     * through the simulation flow.
-     */
     public static void ensureLoanIsActive(Loan loan) {
         if (loan.getStatus() != LoanStatus.ACTIVE) {
             throw new BusinessRuleException(
@@ -52,12 +47,6 @@ public final class ValidationUtil {
     }
 
     // Application guards
-
-    /**
-     * Prevents an officer from acting on an application that is
-     * not in PENDING or UNDER_REVIEW status.
-     * Called by LoanService.processDecision().
-     */
     public static void ensureApplicationIsReviewable(
             LoanApplication application) {
         if (application.getStatus() != ApplicationStatus.PENDING
@@ -69,10 +58,6 @@ public final class ValidationUtil {
         }
     }
 
-    /**
-     * Prevents a borrower from cancelling an application that
-     * has already been reviewed (APPROVED or REJECTED).
-     */
     public static void ensureApplicationIsCancellable(
             LoanApplication application) {
         if (application.getStatus() != ApplicationStatus.PENDING) {

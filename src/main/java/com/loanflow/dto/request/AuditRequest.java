@@ -16,6 +16,6 @@ public class AuditRequest {
     private final String oldStatus;    // null for creation events
     private final String newStatus;
     private final User performedBy;  // null when SYSTEM acts
-    private final Role actorRole;    // LoanConstants.ACTOR_* constants
-    private final String remarks;      // optional context
+    private final Role actorRole;
+    private final String remarks;
 }

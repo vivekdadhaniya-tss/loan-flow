@@ -8,25 +8,15 @@ public final class EmiCalculationUtil {
 
     private EmiCalculationUtil() {}
 
-    /**
-     * Converts annual interest rate (%) to monthly decimal rate
-     * Formula: annualRate / 100 / 12  = annualRate / 1200
-     *
-     *   12% p.a. -> 0.01 per month
-     */
     // 1. Rate conversion
     public static BigDecimal calculateMonthlyRate(BigDecimal annualRatePercent) {
         return annualRatePercent
                 .divide(new BigDecimal("1200"), 10, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Standard reducing balance (PMT) formula:
-     *   EMI = P × r × (1+r)^n / ((1+r)^n - 1)
-     *
-     * ReducingBalanceStrategy - as the fixed EMI for all installments.
-     */
     // 2. Reducing balance EMI formula
+    // EMI = P × r × (1+r)^n / ((1+r)^n - 1)
+    // ReducingBalanceStrategy - as the fixed EMI for all installments.
     public static BigDecimal calculateReducingBalanceEmi(
             BigDecimal principal,
             BigDecimal monthlyRate,
@@ -51,18 +41,22 @@ public final class EmiCalculationUtil {
     }
 
     /**
-     * Calculates the Year-1 (Base) EMI for a Step-Up loan.
+     * P = Sum [ (E * growthMultiplier^yearIndex) / (1 + r)^month ]
      *
-     * Since the EMI increases every 12 months, we find the starting EMI (E) such that:
-     * Principal = Sum [ (E * growthRate^yearIndex) / (1 + r)^month ]
-     * where yearIndex = (month - 1) / 12
+     * E = P / Sum [ growthMultiplier^yearIndex / (1 + r)^month ]
+     *
+     * where,
+     * yearIndex = (month - 1) / 12
+     * r = monthly rate
+     * E = base emi (year-1 emi)
+     * P = Principal
      */
     // 3. Step-Up Base EMI formula
     public static BigDecimal calculateStepUpBaseEmi(
             BigDecimal principal,
             BigDecimal monthlyRate,
             int tenureMonths,
-            BigDecimal growthRate) {
+            BigDecimal growthMultiplier) {
 
         BigDecimal denominator = BigDecimal.ZERO;
         BigDecimal onePlusR = BigDecimal.ONE.add(monthlyRate);
@@ -70,8 +64,8 @@ public final class EmiCalculationUtil {
         for (int i = 1; i <= tenureMonths; i++) {
             int yearIndex = (i - 1) / 12;
 
-            // (1 + growthRate)^yearIndex
-            BigDecimal growthFactor = growthRate.pow(yearIndex);
+            // (1 + growthMultiplier)^yearIndex
+            BigDecimal growthFactor = growthMultiplier.pow(yearIndex);
 
             // (1 + r)^i
             BigDecimal discountFactor = onePlusR.pow(i);
@@ -85,9 +79,7 @@ public final class EmiCalculationUtil {
     }
 
     // 4. Flat rate helpers
-    public static BigDecimal calculateFlatMonthlyPrincipal(
-            BigDecimal principal,
-            int tenureMonths) {
+    public static BigDecimal calculateFlatMonthlyPrincipal(BigDecimal principal, int tenureMonths) {
         return MoneyUtil.roundHalfUp(
                 principal.divide(
                         new BigDecimal(tenureMonths),
@@ -96,16 +88,7 @@ public final class EmiCalculationUtil {
         );
     }
 
-    /**
-     * Formula: principal × monthlyRate
-     *
-     * In flat rate, interest is always on the ORIGINAL principal,
-     * not the outstanding balance — this is what makes it "flat".
-     *
-     */
-    public static BigDecimal calculateFlatMonthlyInterest(
-            BigDecimal principal,
-            BigDecimal monthlyRate) {
+    public static BigDecimal calculateFlatMonthlyInterest(BigDecimal principal, BigDecimal monthlyRate) {
         return MoneyUtil.roundHalfUp(principal.multiply(monthlyRate));
     }
 }

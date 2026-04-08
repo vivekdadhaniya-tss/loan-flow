@@ -12,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import static com.loanflow.constants.SecurityConstants.ROLE_PREFIX;
+
 
 @Component
 @RequiredArgsConstructor
@@ -56,7 +58,7 @@ public class SecurityUtils {
             return false;
         }
 
-        String requiredAuthority = "ROLE_" + role.toUpperCase();
+        String requiredAuthority = ROLE_PREFIX + role.toUpperCase();
 
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

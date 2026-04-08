@@ -17,20 +17,6 @@ public final class MoneyUtil {
         return value.setScale(10, RoundingMode.HALF_UP);
     }
 
-
-    /**
-     * Adjusts the LAST installment so the loan balance reaches exactly ZERO.
-     *
-     * Why needed: floating-point rounding across N installments
-     * leaves a residual balance (typically ±1 paisa). Without this
-     * adjustment the loan never technically closes.
-     *
-     * Called by all three strategy classes on installment N == tenureMonths.
-     *
-     * remainingBalance = outstanding principal before last installment
-     * lastMonthInterest = interest due for the last month
-     * return exact final EMI = remainingBalance + lastMonthInterest
-     */
     // Final installment adjustment
     public static BigDecimal adjustFinalEmi(
             BigDecimal remainingBalance,

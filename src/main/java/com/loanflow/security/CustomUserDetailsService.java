@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.loanflow.constants.SecurityConstants.ROLE_PREFIX;
+
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
@@ -40,7 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // "ROLE_BORROWER", "ROLE_LOAN_OFFICER", "ROLE_ADMIN"
         // Matches @PreAuthorize("hasRole('BORROWER')") in controllers
         Set<GrantedAuthority> authorities = new HashSet<>();
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(ROLE_PREFIX + user.getRole().name());
         authorities.add(authority);
 
 

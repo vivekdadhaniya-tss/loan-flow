@@ -20,6 +20,11 @@ import java.util.List;
  * Year 2: BASE_EMI * (1 + 0.05) ^ 1
  * Year 3: BASE_EMI * (1 + 0.05) ^ 2
  *
+ * CurrentEMI = BaseEMI * (GrowthMultiplier) ^ yearIndex
+ *
+ * EMI increases over time
+ * Interest portion decreases over time (on remaining balance)
+ * Principal portion increases over time
  */
 @Component
 public class StepUpEmiStrategy implements EmiCalculationStrategy {
@@ -31,7 +36,7 @@ public class StepUpEmiStrategy implements EmiCalculationStrategy {
                 loan.getApprovedAmount(),
                 monthlyRate,
                 loan.getTenureMonths(),
-                LoanConstants.STEP_UP_ANNUAL_RATE
+                LoanConstants.STEP_UP_GROWTH_MULTIPLIER
         );
     }
 
@@ -45,7 +50,12 @@ public class StepUpEmiStrategy implements EmiCalculationStrategy {
         Integer tenureMonths = loan.getTenureMonths();
         LocalDate disbursedOn = loan.getDisbursedAt().toLocalDate();
 
-        BigDecimal baseEmi = EmiCalculationUtil.calculateReducingBalanceEmi(principal, monthlyInterestRate, tenureMonths);
+        BigDecimal baseEmi = EmiCalculationUtil.calculateStepUpBaseEmi(
+                principal,
+                monthlyInterestRate,
+                tenureMonths,
+                LoanConstants.STEP_UP_GROWTH_MULTIPLIER
+        );
         BigDecimal balance = principal;
 
         for (int i = 1; i <= tenureMonths; i++) {
@@ -55,7 +65,7 @@ public class StepUpEmiStrategy implements EmiCalculationStrategy {
 
             // emi for this month  = baseEmi * (1 + 0.05) ^ yearIndex
             BigDecimal currentEmi = MoneyUtil.roundHalfUp(
-                    baseEmi.multiply(LoanConstants.STEP_UP_ANNUAL_RATE.pow(yearIndex)));
+                    baseEmi.multiply(LoanConstants.STEP_UP_GROWTH_MULTIPLIER.pow(yearIndex)));
             BigDecimal interest = MoneyUtil.roundHalfUp(
                     balance.multiply(monthlyInterestRate));
             BigDecimal principalPart = MoneyUtil.roundHalfUp(

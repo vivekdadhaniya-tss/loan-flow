@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.loanflow.constants.SecurityConstants.ROLE_PREFIX;
+
 @Component
 @Slf4j
 public class JwtTokenProvider {
@@ -45,11 +47,11 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // Generate token from User entity (Registration) - Kept for Loanflow compatibility
+    // Generate token from User entity (Registration)
     public String generateTokenForUser(User user) {
         Date currentDate = new Date();
         Date expiryDate = new Date(currentDate.getTime() + jwtExpirationDate);
-        List<String> roles = List.of("ROLE_" + user.getRole().name());
+        List<String> roles = List.of(ROLE_PREFIX + user.getRole().name());
 
         return Jwts.builder()
                 .subject(user.getEmail())
