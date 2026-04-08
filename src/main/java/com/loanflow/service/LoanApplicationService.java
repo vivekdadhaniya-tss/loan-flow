@@ -21,5 +21,5 @@ public interface LoanApplicationService {
     List<OfficerApplicationResponse> getPendingApplications();
 
     @Transactional(readOnly = true)
-    List<BorrowerApplicationResponse> getMyApplications(User borrower);
+    List<BorrowerApplicationResponse> getMyApplications(Long borrowerId);
 }

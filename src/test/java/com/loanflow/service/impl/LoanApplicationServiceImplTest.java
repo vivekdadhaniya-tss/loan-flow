@@ -255,16 +255,16 @@ class LoanApplicationServiceImplTest {
     void getMyApplications_Success() {
         // Arrange
         List<LoanApplication> myApps = List.of(new LoanApplication());
-        when(loanApplicationRepository.findByBorrowerOrderByCreatedAtDesc(testBorrower)).thenReturn(myApps);
+        when(loanApplicationRepository.findByBorrowerIdOrderByCreatedAtDesc(testBorrower.getId())).thenReturn(myApps);
 
         List<BorrowerApplicationResponse> responses = List.of(new BorrowerApplicationResponse());
         when(loanApplicationMapper.toBorrowerResponseList(myApps)).thenReturn(responses);
 
         // Act
-        List<BorrowerApplicationResponse> result = loanApplicationService.getMyApplications(testBorrower);
+        List<BorrowerApplicationResponse> result = loanApplicationService.getMyApplications(testBorrower.getId());
 
         // Assert
         assertThat(result).hasSize(1);
-        verify(loanApplicationRepository).findByBorrowerOrderByCreatedAtDesc(testBorrower);
+        verify(loanApplicationRepository).findByBorrowerIdOrderByCreatedAtDesc(testBorrower.getId());
     }
 }

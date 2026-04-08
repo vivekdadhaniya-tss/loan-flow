@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.time.*;
 import java.time.format.*;
+import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -92,12 +93,16 @@ public class PaymentServiceImpl implements PaymentService {
         List<EmiSchedule> emisToPay = unpaidEmis.subList(0, requestedCount);
         List<Payment> savedPayments = new ArrayList<>();
 
+        BigDecimal totalPrincipalPaid = BigDecimal.ZERO;
+
         for (EmiSchedule emi : emisToPay) {
             String oldEmiStatus = emi.getStatus().name();
 
             emi.setStatus(EmiStatus.PAID);
             emi.setPaidAt(LocalDateTime.now());
             emiScheduleRepository.save(emi);
+
+            totalPrincipalPaid = totalPrincipalPaid.add(emi.getPrincipalAmount());
 
             Payment payment = new Payment();
             payment.setEmiSchedule(emi);
@@ -118,7 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
                             overdueTrackerRepository.save(tracker);
 
                             loan.setOverDueCount(Math.max(0, loan.getOverDueCount() - 1));
-                            loanRepository.save(loan);
+//                            loanRepository.save(loan);
                         });
             }
 
@@ -134,6 +139,19 @@ public class PaymentServiceImpl implements PaymentService {
                     .build());
 
             applicationEventPublisher.publishEvent(new PaymentReceivedEvent(saved, emi));
+        }
+
+        // deduct the totalPrincipalPaid from OutstandingPrincipal
+        if(totalPrincipalPaid.compareTo(BigDecimal.ZERO) > 0){
+            BigDecimal newOutstandingPrincipal = loan.getOutstandingPrincipal().subtract(totalPrincipalPaid);
+
+            // Safety check: Prevent negative balances due to fractional rounding differences
+            if(newOutstandingPrincipal.compareTo(BigDecimal.ZERO) < 0){
+                newOutstandingPrincipal= BigDecimal.ZERO;
+            }
+
+            loan.setOutstandingPrincipal(newOutstandingPrincipal);
+            loanRepository.save(loan);
         }
 
         loanService.closeLoanIfCompleted(loan);

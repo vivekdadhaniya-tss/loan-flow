@@ -33,7 +33,9 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     List<Loan> findByBorrowerAndStatus(User Borrower, LoanStatus status);
 
-    List<Loan> findByBorrowerOrderByCreatedAtDesc(User Borrower);
+    List<Loan> findByBorrowerIdOrderByCreatedAtDesc(Long borrowerId);
+
+//    List<Loan> findByBorrowerOrderByCreatedAtDesc(User Borrower);
 
     // Used by OverdueMonitorService.scanAndMarkWrittenOff()
     List<Loan> findByStatusAndUpdatedAtBefore(LoanStatus status, LocalDateTime cutoff);

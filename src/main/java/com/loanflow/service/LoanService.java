@@ -18,7 +18,7 @@ public interface LoanService {
     void closeLoanIfCompleted(Loan loan);
 
     // Get all loans for a borrower
-    List<LoanResponse> getMyLoans(User borrower);
+    List<LoanResponse> getMyLoans(Long id);
 
     // Find loan by ID
     Loan findById(Long loanId);

@@ -41,8 +41,6 @@ public interface EmiScheduleRepository extends JpaRepository<EmiSchedule, Long> 
             @Param("status") EmiStatus status,
             @Param("dueDate") LocalDate dueDate);
 
-
-    // Used by PaymentService to check if all EMIs are PAID
     Long countByLoanAndStatusNot(Loan loan, EmiStatus status);
 
     @Query("SELECT e FROM EmiSchedule e WHERE e.loan = :loan AND e.status != 'PAID' ORDER BY e.installmentNumber ASC")

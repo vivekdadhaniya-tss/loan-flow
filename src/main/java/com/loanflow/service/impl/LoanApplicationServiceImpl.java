@@ -219,9 +219,9 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     // READ — borrower's own history
     @Override
     @Transactional(readOnly = true)
-    public List<BorrowerApplicationResponse> getMyApplications(User borrower) {
+    public List<BorrowerApplicationResponse> getMyApplications(Long borrowerId) {
         List<LoanApplication> applications = loanApplicationRepository
-                .findByBorrowerOrderByCreatedAtDesc(borrower);
+                .findByBorrowerIdOrderByCreatedAtDesc(borrowerId);
         return loanApplicationMapper.toBorrowerResponseList(applications);
     }
 
