@@ -16,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,14 +42,13 @@ class EmiScheduleServiceImplTest {
     private EmiScheduleMapper emiScheduleMapper;
 
     @Mock
-    private EmiCalculationStrategy strategy; // Mocking the strategy interface
+    private EmiCalculationStrategy strategy;
 
     @InjectMocks
     private EmiScheduleServiceImpl emiScheduleService;
 
     private Loan testLoan;
 
-    // FIX: Changed from UUID to Long to match updated Loan entity
     private final Long loanId = 100L;
     private final String loanNumber = "LN-123456";
 
@@ -69,7 +71,6 @@ class EmiScheduleServiceImplTest {
 
         List<EmiSchedule> mockSchedule = List.of(month1, month2);
 
-        // When the strategy is called, return our mock list
         when(strategy.generateEmiSchedule(testLoan)).thenReturn(mockSchedule);
 
         // Act
@@ -112,28 +113,32 @@ class EmiScheduleServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Loan not found: " + loanId);
 
-        // Verify that the downstream repository was NEVER called because the exception stopped execution
-        verify(emiScheduleRepository, never()).findByLoanOrderByInstallmentNumberAsc(any());
+        verify(emiScheduleRepository, never()).findByLoanOrderByInstallmentNumberAsc(any(Loan.class));
     }
 
     @Test
-    @DisplayName("Should return schedule list when fetched by valid Loan Number")
+    @DisplayName("Should return paginated schedule list when fetched by valid Loan Number")
     void getScheduleByLoanNumber_Success() {
         // Arrange
-        List<EmiSchedule> dbSchedule = List.of(new EmiSchedule());
-        List<EmiScheduleResponse> mappedResponse = List.of(new EmiScheduleResponse());
+        EmiSchedule emi = new EmiSchedule();
+        Page<EmiSchedule> dbPage = new PageImpl<>(List.of(emi));
+
+        EmiScheduleResponse responseDto = new EmiScheduleResponse();
 
         when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(testLoan));
-        when(emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(testLoan)).thenReturn(dbSchedule);
-        when(emiScheduleMapper.toResponseList(dbSchedule)).thenReturn(mappedResponse);
+        // Mock the repository call with Pageable
+        when(emiScheduleRepository.findByLoanOrderByInstallmentNumberAsc(eq(testLoan), any(Pageable.class))).thenReturn(dbPage);
+        // Page.map() applies the mapper function to each element individually
+        when(emiScheduleMapper.toResponse(emi)).thenReturn(responseDto);
 
         // Act
-        Page<EmiScheduleResponse> result = emiScheduleService.getScheduleByLoanNumber(loanNumber , 0  ,10);
+        Page<EmiScheduleResponse> result = emiScheduleService.getScheduleByLoanNumber(loanNumber, 0, 10);
 
         // Assert
-        assertThat(result).hasSize(1);
+        assertThat(result.getContent()).hasSize(1);
         verify(loanRepository).findByLoanNumber(loanNumber);
-        verify(emiScheduleRepository).findByLoanOrderByInstallmentNumberAsc(testLoan);
+        verify(emiScheduleRepository).findByLoanOrderByInstallmentNumberAsc(eq(testLoan), any(Pageable.class));
+        verify(emiScheduleMapper).toResponse(emi);
     }
 
     @Test
@@ -143,11 +148,11 @@ class EmiScheduleServiceImplTest {
         when(loanRepository.findByLoanNumber("INVALID-123")).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThatThrownBy(() -> emiScheduleService.getScheduleByLoanNumber("INVALID-123" , 0, 10))
+        assertThatThrownBy(() -> emiScheduleService.getScheduleByLoanNumber("INVALID-123", 0, 10))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Loan not found: INVALID-123");
 
-        // Verify downstream processes were halted
-        verify(emiScheduleRepository, never()).findByLoanOrderByInstallmentNumberAsc(any());
+        // Verify downstream processes were halted for the paginated repository method
+        verify(emiScheduleRepository, never()).findByLoanOrderByInstallmentNumberAsc(any(Loan.class), any(Pageable.class));
     }
 }

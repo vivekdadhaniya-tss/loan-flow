@@ -3,6 +3,7 @@ package com.loanflow.service.impl;
 import com.loanflow.dto.request.AuditRequest;
 import com.loanflow.dto.request.LoanDecisionRequest;
 import com.loanflow.dto.response.LoanResponse;
+import com.loanflow.dto.response.OfficerApplicationResponse;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.Borrower;
@@ -15,6 +16,7 @@ import com.loanflow.event.LoanClosedEvent;
 import com.loanflow.event.LoanDecisionEvent;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
+import com.loanflow.mapper.LoanApplicationMapper;
 import com.loanflow.mapper.LoanMapper;
 import com.loanflow.repository.EmiScheduleRepository;
 import com.loanflow.repository.LoanApplicationRepository;
@@ -39,7 +41,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -59,24 +60,21 @@ class LoanServiceImplTest {
     @Mock private LoanStrategyFactory loanStrategyFactory;
     @Mock private AuditService auditService;
     @Mock private LoanMapper loanMapper;
+    @Mock private LoanApplicationMapper loanApplicationMapper; // ADDED: Required by the new Service code
     @Mock private ApplicationEventPublisher eventPublisher;
 
-    @Mock private EmiCalculationStrategy emiCalculationStrategy; // Mocked interface for strategy resolution
+    @Mock private EmiCalculationStrategy emiCalculationStrategy;
 
     @InjectMocks
     private LoanServiceImpl loanService;
 
-    @Captor
-    private ArgumentCaptor<Loan> loanCaptor;
-
-    @Captor
-    private ArgumentCaptor<LoanApplication> applicationCaptor;
+    @Captor private ArgumentCaptor<Loan> loanCaptor;
+    @Captor private ArgumentCaptor<LoanApplication> applicationCaptor;
 
     private User officer;
     private Borrower borrower;
     private LoanApplication application;
 
-    // Updated to use Application Number (String) and Loan ID (Long)
     private final String appNumber = "APP-20260331-001014";
     private final Long testLoanId = 100L;
 
@@ -94,7 +92,7 @@ class LoanServiceImplTest {
         application.setId(300L);
         application.setApplicationNumber(appNumber);
         application.setBorrower(borrower);
-        application.setStatus(ApplicationStatus.UNDER_REVIEW); // Valid status for ValidationUtil
+        application.setStatus(ApplicationStatus.UNDER_REVIEW);
         application.setRequestedAmount(new BigDecimal("500000"));
         application.setTenureMonths(24);
         application.setMonthlyIncome(new BigDecimal("80000"));
@@ -103,21 +101,23 @@ class LoanServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should successfully reject application, save status, audit, and fire event")
-    void processDecision_Reject_Success() {
+    @DisplayName("Should successfully manual reject application, save status, audit, and fire event")
+    void processDecision_ManualReject_Success() {
         // Arrange
         LoanDecisionRequest request = new LoanDecisionRequest();
         request.setApproved(false);
         request.setRejectionReason("Credit score too low");
 
-        // FIX: Now querying by applicationNumber
         when(loanApplicationRepository.findByApplicationNumber(appNumber)).thenReturn(Optional.of(application));
 
+        OfficerApplicationResponse expectedResponse = new OfficerApplicationResponse();
+        when(loanApplicationMapper.toOfficerResponse(application)).thenReturn(expectedResponse);
+
         // Act
-        LoanResponse response = loanService.processDecision(appNumber, request, officer);
+        Object response = loanService.processDecision(appNumber, request, officer);
 
         // Assert
-        assertThat(response).isNull(); // Rejection returns null
+        assertThat(response).isEqualTo(expectedResponse); // Now returns ApplicationResponse instead of null
 
         verify(loanApplicationRepository).save(applicationCaptor.capture());
         LoanApplication savedApp = applicationCaptor.getValue();
@@ -127,7 +127,44 @@ class LoanServiceImplTest {
 
         verify(auditService, times(1)).log(any(AuditRequest.class));
         verify(eventPublisher).publishEvent(any(LoanDecisionEvent.class));
-        verifyNoInteractions(loanRepository, emiScheduleService); // Loan generation should not happen
+        verifyNoInteractions(loanRepository, emiScheduleService);
+    }
+
+    @Test
+    @DisplayName("Should AUTO-REJECT application when calculated DTI exceeds 40%")
+    void processDecision_AutoReject_HighDti() {
+        // Arrange
+        LoanDecisionRequest request = new LoanDecisionRequest();
+        request.setApproved(true); // Officer tried to approve!
+        request.setInterestRatePerAnnum(new BigDecimal("10.5"));
+
+        when(loanApplicationRepository.findByApplicationNumber(appNumber)).thenReturn(Optional.of(application));
+        when(loanRepository.sumActiveMonthlyEmi(borrower.getId())).thenReturn(Optional.of(BigDecimal.ZERO));
+
+        when(loanStrategyFactory.resolve(LoanStrategy.REDUCING_BALANCE_LOAN)).thenReturn(emiCalculationStrategy);
+        when(emiCalculationStrategy.calculateBaseEmi(any(Loan.class))).thenReturn(new BigDecimal("25000"));
+
+        // Mock DTI Calculation > 40%
+        when(dtiCalculationService.calculateFinalDti(any(), any(), any(), any())).thenReturn(new BigDecimal("45.50"));
+
+        OfficerApplicationResponse expectedResponse = new OfficerApplicationResponse();
+        when(loanApplicationMapper.toOfficerResponse(application)).thenReturn(expectedResponse);
+
+        // Act
+        Object response = loanService.processDecision(appNumber, request, officer);
+
+        // Assert
+        assertThat(response).isEqualTo(expectedResponse); // Returns ApplicationResponse
+
+        verify(loanApplicationRepository).save(applicationCaptor.capture());
+        LoanApplication savedApp = applicationCaptor.getValue();
+
+        assertThat(savedApp.getStatus()).isEqualTo(ApplicationStatus.REJECTED); // Status overriden to Rejected
+        assertThat(savedApp.getRejectionReason()).contains("System Auto-Reject: Final DTI with new loan exceeds 40%");
+
+        verify(auditService, times(1)).log(any(AuditRequest.class));
+        verify(eventPublisher).publishEvent(any(LoanDecisionEvent.class));
+        verify(loanRepository, never()).save(any(Loan.class)); // Ensure Loan table was never touched!
     }
 
     @Test
@@ -143,24 +180,23 @@ class LoanServiceImplTest {
         when(loanRepository.getNextLoanSequence()).thenReturn(1001L);
 
         Loan mockSavedLoan = new Loan();
-        mockSavedLoan.setId(testLoanId); // Updated to Long
+        mockSavedLoan.setId(testLoanId);
 
         when(loanStrategyFactory.resolve(LoanStrategy.REDUCING_BALANCE_LOAN)).thenReturn(emiCalculationStrategy);
-
-        // FIX: Mock the new calculateBaseEmi call that runs BEFORE saving the loan
         when(emiCalculationStrategy.calculateBaseEmi(any(Loan.class))).thenReturn(new BigDecimal("23000"));
 
-        when(loanRepository.save(any(Loan.class))).thenReturn(mockSavedLoan);
+        // Mock DTI <= 40%
         when(dtiCalculationService.calculateFinalDti(any(), any(), any(), any())).thenReturn(new BigDecimal("35.5"));
+        when(loanRepository.save(any(Loan.class))).thenReturn(mockSavedLoan);
 
         LoanResponse expectedResponse = new LoanResponse();
         when(loanMapper.toResponse(mockSavedLoan)).thenReturn(expectedResponse);
 
         // Act
-        LoanResponse response = loanService.processDecision(appNumber, request, officer);
+        Object response = loanService.processDecision(appNumber, request, officer);
 
         // Assert
-        assertThat(response).isNotNull();
+        assertThat(response).isEqualTo(expectedResponse); // Returns LoanResponse
 
         verify(loanApplicationRepository).save(application);
         assertThat(application.getStatus()).isEqualTo(ApplicationStatus.APPROVED);
@@ -173,13 +209,9 @@ class LoanServiceImplTest {
         assertThat(createdLoan.getStrategy()).isEqualTo(LoanStrategy.REDUCING_BALANCE_LOAN);
         assertThat(createdLoan.getStatus()).isEqualTo(LoanStatus.ACTIVE);
         assertThat(createdLoan.getLoanNumber()).contains("LN-");
-
-        // Verify that the EMI was correctly populated BEFORE the save to prevent database crashes
         assertThat(createdLoan.getMonthlyEmi()).isEqualByComparingTo("23000");
 
-        // Verify the schedule was generated on the saved loan
         verify(emiScheduleService).generateSchedule(mockSavedLoan, emiCalculationStrategy);
-
         verify(auditService, times(2)).log(any(AuditRequest.class));
         verify(eventPublisher).publishEvent(any(LoanDecisionEvent.class));
     }

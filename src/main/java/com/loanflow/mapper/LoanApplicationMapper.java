@@ -1,7 +1,6 @@
 package com.loanflow.mapper;
 
 import com.loanflow.dto.response.BorrowerApplicationResponse;
-import com.loanflow.dto.response.LoanApplicationResponse;
 import com.loanflow.dto.response.OfficerApplicationResponse;
 import com.loanflow.entity.LoanApplication;
 import org.mapstruct.*;
@@ -28,8 +27,4 @@ public interface LoanApplicationMapper {
     OfficerApplicationResponse toOfficerResponse(LoanApplication application);
     List<OfficerApplicationResponse> toOfficerResponseList(List<LoanApplication> applications);
 
-    @Mapping(target = "reviewedByName", source = "reviewedBy.name")
-    LoanApplicationResponse toResponse(LoanApplication application);
-
-    List<LoanApplicationResponse> toResponseList(List<LoanApplication> applications);
 }

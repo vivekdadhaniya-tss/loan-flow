@@ -14,6 +14,7 @@ import com.loanflow.enums.LoanStatus;
 import com.loanflow.enums.PenaltyStatus;
 import com.loanflow.enums.Role;
 import com.loanflow.event.PaymentReceivedEvent;
+import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
 import com.loanflow.exception.UnauthorizedAccessException;
 import com.loanflow.mapper.PaymentMapper;
@@ -34,11 +35,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -70,7 +72,6 @@ class PaymentServiceImplTest {
     private Loan activeLoan;
     private EmiSchedule testEmi;
     private PaymentSimulationRequest request;
-    private final Long emiId = 200L;
     private final String loanNumber = "LN-20260402-001009";
 
     @BeforeEach
@@ -85,12 +86,16 @@ class PaymentServiceImplTest {
         activeLoan.setStatus(LoanStatus.ACTIVE);
         activeLoan.setOverDueCount(0);
         activeLoan.setLoanNumber(loanNumber);
+        // FIX: Must set Outstanding Principal for the new deduction logic!
+        activeLoan.setOutstandingPrincipal(new BigDecimal("50000.00"));
 
         testEmi = new EmiSchedule();
-        testEmi.setId(emiId);
+        testEmi.setId(500L);
         testEmi.setLoan(activeLoan);
         testEmi.setStatus(EmiStatus.PENDING);
         testEmi.setTotalEmiAmount(new BigDecimal("15000.00"));
+        // FIX: Must set Principal Amount for the new deduction logic!
+        testEmi.setPrincipalAmount(new BigDecimal("10000.00"));
         testEmi.setInstallmentNumber(1);
 
         request = new PaymentSimulationRequest();
@@ -99,10 +104,14 @@ class PaymentServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should successfully process standard PENDING payment")
+    @DisplayName("Should successfully process standard PENDING payment and reduce principal")
     void simulatePayment_PendingEmi_Success() {
         // Arrange
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.of(testEmi));
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(PageRequest.class)))
+                .thenReturn(List.of(testEmi));
+
         when(paymentRepository.getNextReceiptSequence()).thenReturn(105L);
         when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
         when(paymentMapper.toResponse(any(Payment.class))).thenReturn(new PaymentResponse());
@@ -111,7 +120,7 @@ class PaymentServiceImplTest {
         List<PaymentResponse> response = paymentService.simulatePayment(request, borrower);
 
         // Assert
-        assertThat(response).isNotNull();
+        assertThat(response).isNotNull().hasSize(1);
         assertThat(testEmi.getStatus()).isEqualTo(EmiStatus.PAID);
         assertThat(testEmi.getPaidAt()).isNotNull();
 
@@ -120,13 +129,16 @@ class PaymentServiceImplTest {
 
         Payment savedPayment = paymentCaptor.getValue();
         assertThat(savedPayment.getPaidAmount()).isEqualByComparingTo("15000.00");
-        assertThat(savedPayment.getReceiptNumber()).contains("RCP-"); // Verifying receipt format
+        assertThat(savedPayment.getReceiptNumber()).contains("RCP-");
+
+        // Verify Principal was deducted (50,000 - 10,000)
+        verify(loanRepository).save(loanCaptor.capture());
+        Loan savedLoan = loanCaptor.getValue();
+        assertThat(savedLoan.getOutstandingPrincipal()).isEqualByComparingTo("40000.00");
 
         verify(auditService).log(any(AuditRequest.class));
         verify(eventPublisher).publishEvent(any(PaymentReceivedEvent.class));
         verify(loanService).closeLoanIfCompleted(activeLoan);
-
-        // Ensure overdue logic was NOT triggered
         verifyNoInteractions(overdueTrackerRepository);
     }
 
@@ -140,7 +152,11 @@ class PaymentServiceImplTest {
         OverdueTracker tracker = new OverdueTracker();
         tracker.setEmiSchedule(testEmi);
 
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.of(testEmi));
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(PageRequest.class)))
+                .thenReturn(List.of(testEmi));
+
         when(paymentRepository.getNextReceiptSequence()).thenReturn(106L);
         when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
         when(overdueTrackerRepository.findByEmiSchedule(testEmi)).thenReturn(Optional.of(tracker));
@@ -154,32 +170,70 @@ class PaymentServiceImplTest {
         assertThat(savedTracker.getResolvedAt()).isNotNull();
         assertThat(savedTracker.getPenaltyStatus()).isEqualTo(PenaltyStatus.SETTLED);
 
-        verify(loanRepository).save(loanCaptor.capture());
+        // Capture loan update (contains both overdue count update AND principal deduction)
+        verify(loanRepository, atLeastOnce()).save(loanCaptor.capture());
         Loan savedLoan = loanCaptor.getValue();
         assertThat(savedLoan.getOverDueCount()).isEqualTo(1); // Decremented from 2 to 1
+    }
+
+    @Test
+    @DisplayName("Should throw Exception if user tries to pay more than max allowed EMIs")
+    void simulatePayment_ThrowsException_IfExceedsMaxAllowed() {
+        // Arrange
+        request.setInstallmentCount(5); // Requesting 5
+
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+
+        // Mock returning 10 pending EMIs
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(PageRequest.class)))
+                .thenReturn(List.of(testEmi, testEmi, testEmi, testEmi, testEmi));
+        // Since none are OVERDUE, overdueCount = 0. maxAllowed = 0 + 3 = 3.
+
+        // Act & Assert
+        assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("You can only pay up to 3 installments at a time");
+    }
+
+    @Test
+    @DisplayName("Should throw Exception if Loan does not exist")
+    void simulatePayment_ThrowsException_IfLoanNotFound() {
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Loan not found: " + loanNumber);
+    }
+
+    @Test
+    @DisplayName("Should throw Exception if there are no pending EMIs")
+    void simulatePayment_ThrowsException_IfNoPendingEmis() {
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(PageRequest.class)))
+                .thenReturn(Collections.emptyList());
+
+        assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("No pending EMIs found for this loan.");
     }
 
     @Test
     @DisplayName("Should throw Exception if Receipt Sequence generation fails")
     void simulatePayment_ThrowsException_IfSequenceFails() {
         // Arrange
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.of(testEmi));
+        when(loanRepository.findByLoanNumber(loanNumber)).thenReturn(Optional.of(activeLoan));
+        when(securityUtils.isOwner(borrower.getId())).thenReturn(true);
+        when(emiScheduleRepository.findNextUnpaidEmis(eq(activeLoan), any(PageRequest.class)))
+                .thenReturn(List.of(testEmi));
+
         when(paymentRepository.getNextReceiptSequence()).thenReturn(null); // Sequence generation fails
 
         // Act & Assert
         assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Failed to generate receipt number sequence");
-    }
-
-    @Test
-    @DisplayName("Should throw ResourceNotFoundException if EMI does not exist")
-    void simulatePayment_ThrowsException_IfEmiNotFound() {
-        when(emiScheduleRepository.findById(emiId)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> paymentService.simulatePayment(request, borrower))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("EMI Schedule not found");
     }
 
     // --- GET PAYMENTS BY LOAN NUMBER TESTS ---
