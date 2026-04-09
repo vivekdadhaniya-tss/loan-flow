@@ -32,7 +32,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,50 +74,52 @@ class OverdueMonitorServiceImplTest {
         testEmi.setId(500L);
         testEmi.setLoan(activeLoan);
         testEmi.setStatus(EmiStatus.PENDING);
-        testEmi.setTotalEmiAmount(new BigDecimal("15000.00")); // Updated field for penalty calculation
+        testEmi.setTotalEmiAmount(new BigDecimal("15000.00"));
+        // Add remaining balance so the Stage 3 Penalty math doesn't throw a NullPointerException
+        testEmi.setRemainingBalance(new BigDecimal("15000.00"));
         testEmi.setInstallmentNumber(1);
     }
 
-//    @Test
-//    @DisplayName("Phase 1 - Day 1 Overdue: Finds newly missed PENDING EMIs, applies flat fee, sends alert")
-//    void scanAndMarkOverdue_NewOverdue_AppliesFlatFee_NoDailyCharge() {
-//        // Arrange
-//        testEmi.setDueDate(LocalDate.now().minusDays(1)); // 1 day overdue
-//
-//        // Mock Phase 1: newly PENDING
-//        when(emiScheduleRepository.findByStatusAndDueDateBefore(eq(EmiStatus.PENDING), any(LocalDate.class)))
-//                .thenReturn(List.of(testEmi));
-//        when(overdueTrackerRepository.findByEmiSchedule(testEmi)).thenReturn(Optional.empty());
-//
-//        // Mock Phase 2: no unresolved existing trackers
-//        when(overdueTrackerRepository.findByResolvedAtIsNull()).thenReturn(Collections.emptyList());
-//
-//        // Act
-//        overdueMonitorService.scanAndMarkOverdue();
-//
-//        // Assert - EMI Status
-//        verify(emiScheduleRepository).save(emiCaptor.capture());
-//        assertThat(emiCaptor.getValue().getStatus()).isEqualTo(EmiStatus.OVERDUE);
-//
-//        // Assert - Tracker updates (Stage 1 & 2 Penalty)
-//        verify(overdueTrackerRepository).save(trackerCaptor.capture());
-//        OverdueTracker savedTracker = trackerCaptor.getValue();
-//
-//        assertThat(savedTracker.getDaysOverdue()).isEqualTo(1);
-//        assertThat(savedTracker.getDetectedAt()).isNotNull();
-//        assertThat(savedTracker.getFixedPenaltyAmount()).isEqualTo(LoanConstants.LATE_FEE_FLAT_AMOUNT);
-//        assertThat(savedTracker.getPenaltyCharge()).isEqualTo(BigDecimal.ZERO); // Grace period
-//        assertThat(savedTracker.getPenaltyStatus()).isEqualTo(PenaltyStatus.APPLIED);
-//        assertThat(savedTracker.getAlertCount()).isEqualTo(1);
-//
-//        // Assert - Loan Overdue Count Increment
-//        verify(loanRepository).save(loanCaptor.capture());
-//        assertThat(loanCaptor.getValue().getOverDueCount()).isEqualTo(1);
-//
-//        // Assert - Events & Audits
-//        verify(eventPublisher).publishEvent(any(OverdueAlertEvent.class));
-//        verify(auditService).log(any(AuditRequest.class));
-//    }
+    @Test
+    @DisplayName("Phase 1 - Day 1 Overdue: Finds newly missed PENDING EMIs, applies flat fee, sends alert")
+    void scanAndMarkOverdue_NewOverdue_AppliesFlatFee_NoDailyCharge() {
+        // Arrange
+        testEmi.setDueDate(LocalDate.now().minusDays(1)); // 1 day overdue
+
+        // Mock Phase 1: newly PENDING
+        when(emiScheduleRepository.findByStatusAndDueDateBefore(eq(EmiStatus.PENDING), any(LocalDate.class)))
+                .thenReturn(List.of(testEmi));
+        when(overdueTrackerRepository.findByEmiSchedule(testEmi)).thenReturn(Optional.empty());
+
+        // Mock Phase 2: no unresolved existing trackers
+        when(overdueTrackerRepository.findByResolvedAtIsNull()).thenReturn(Collections.emptyList());
+
+        // Act
+        overdueMonitorService.scanAndMarkOverdue();
+
+        // Assert - EMI Status
+        verify(emiScheduleRepository).save(emiCaptor.capture());
+        assertThat(emiCaptor.getValue().getStatus()).isEqualTo(EmiStatus.OVERDUE);
+
+        // Expect save to be called TWICE (Once for creation, once after setting the Alert count)
+        verify(overdueTrackerRepository, times(2)).save(trackerCaptor.capture());
+        OverdueTracker savedTracker = trackerCaptor.getValue(); // Gets the state of the final save
+
+        assertThat(savedTracker.getDaysOverdue()).isEqualTo(1);
+        assertThat(savedTracker.getDetectedAt()).isNotNull();
+        assertThat(savedTracker.getFixedPenaltyAmount()).isEqualTo(LoanConstants.LATE_FEE_FLAT_AMOUNT);
+        assertThat(savedTracker.getPenaltyCharge()).isEqualTo(BigDecimal.ZERO); // Grace period
+        assertThat(savedTracker.getPenaltyStatus()).isEqualTo(PenaltyStatus.APPLIED);
+        assertThat(savedTracker.getAlertCount()).isEqualTo(1);
+
+        // Assert - Loan Overdue Count Increment
+        verify(loanRepository).save(loanCaptor.capture());
+        assertThat(loanCaptor.getValue().getOverDueCount()).isEqualTo(1);
+
+        // Assert - Events & Audits
+        verify(eventPublisher).publishEvent(any(OverdueAlertEvent.class));
+        verify(auditService).log(any(AuditRequest.class));
+    }
 
     @Test
     @DisplayName("Phase 2 - Stage 3 Penalty: Updates unresolved tracker past grace period with daily charge")

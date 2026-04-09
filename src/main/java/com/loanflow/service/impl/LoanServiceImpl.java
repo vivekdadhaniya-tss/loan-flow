@@ -2,8 +2,8 @@ package com.loanflow.service.impl;
 
 import com.loanflow.dto.request.AuditRequest;
 import com.loanflow.dto.request.LoanDecisionRequest;
-import com.loanflow.dto.response.LoanApplicationResponse;
 import com.loanflow.dto.response.LoanResponse;
+import com.loanflow.dto.response.OfficerApplicationResponse;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.LoanApplication;
 import com.loanflow.entity.user.User;
@@ -153,7 +153,7 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(savedLoan);
     }
 
-    private LoanApplicationResponse executeRejection(LoanApplication application, String reason, User officer, String oldStatus) {
+    private OfficerApplicationResponse executeRejection(LoanApplication application, String reason, User officer, String oldStatus) {
         application.setStatus(ApplicationStatus.REJECTED);
         application.setRejectionReason(reason);
         loanApplicationRepository.save(application);
@@ -171,7 +171,7 @@ public class LoanServiceImpl implements LoanService {
 
         eventPublisher.publishEvent(new LoanDecisionEvent(null, application, ApplicationStatus.REJECTED, reason));
 
-        return loanApplicationMapper.toResponse(application);
+        return loanApplicationMapper.toOfficerResponse(application);
     }
 
     private String generateLoanNumber() {
