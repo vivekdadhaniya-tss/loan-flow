@@ -48,7 +48,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     private final LoanApplicationMapper loanApplicationMapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    //  APPLY — Phase 1 (DTI_initial only)
+
     @Override
     @Transactional
     public BorrowerApplicationResponse apply(LoanApplicationRequest request, User borrower) {
@@ -86,19 +86,16 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .orElse(BigDecimal.ZERO);
 
         // 3. Calculate DTI_initial
-        // Formula: (internalEmi + externalEmi) / monthlyIncome × 100
-        // This is Phase 1 — used for early rejection gate and strategy suggestion
+        // Formula: (internalEmi + externalEmi) / monthlyIncome * 100
+        // This is Phase 1 - used for early rejection gate and strategy suggestion
         // DTI_final is calculated LATER in LoanService.processDecision()
         // after the officer sets the interest rate and the EMI is computed
         BigDecimal dtiInitial = dtiCalculationService.calculateInitialDti(
                 internalEmi, externalEmi, request.getMonthlyIncome());
 
-        log.info("Borrower {} — DTI_initial: {}%",
-                currentBorrower.getId(), dtiInitial);
+        log.info("Borrower {} — DTI_initial: {}%", currentBorrower.getId(), dtiInitial);
 
         // 4. Suggest strategy from DTI_initial
-        // Returns null when DTI > 40% (high risk → auto-reject)
-        // Returns FLAT / REDUCING / STEP_UP based on DTI range + tenure
         LoanStrategy suggested = dtiCalculationService.suggestStrategy(
                 dtiInitial, request.getTenureMonths());
 
@@ -116,10 +113,9 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
         // 6. Auto-reject if high risk (DTI > 40%)
         if (suggested == null) {
-            application.setStatus(ApplicationStatus.REJECTED);
-            application.setRejectionReason(
-                    "Auto-rejected: DTI " + dtiInitial + "% exceeds 40% threshold.");
 
+            application.setStatus(ApplicationStatus.REJECTED);
+            application.setRejectionReason( "Auto-rejected: DTI " + dtiInitial + "% exceeds 40% threshold.");
             application.setApplicationNumber(generateApplicationNumber());
             LoanApplication saved = loanApplicationRepository.save(application);
 
@@ -205,8 +201,6 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         log.info("Application {} successfully cancelled by user {}", applicationNumber, borrower.getEmail());
     }
 
-
-    //  READ — officer pending queue
     @Override
     @Transactional(readOnly = true)
     public List<OfficerApplicationResponse> getPendingApplications() {
@@ -215,8 +209,6 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         return loanApplicationMapper.toOfficerResponseList(pending);
     }
 
-
-    // READ — borrower's own history
     @Override
     @Transactional(readOnly = true)
     public List<BorrowerApplicationResponse> getMyApplications(Long borrowerId) {

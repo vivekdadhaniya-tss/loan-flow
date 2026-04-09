@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
-@EnableScheduling
 public class AsyncConfig {
 
     @Bean(name = "taskExecutor")

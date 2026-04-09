@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.UUID;
 
 @Component
+@Slf4j
 public class LoggingFilter extends OncePerRequestFilter {
 
     @Override
@@ -44,6 +46,8 @@ public class LoggingFilter extends OncePerRequestFilter {
 
             // Response status
             MDC.put("status", String.valueOf(response.getStatus()));
+
+            log.info("Completed HTTP request");
 
         } finally {
             MDC.clear();

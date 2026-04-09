@@ -27,7 +27,6 @@ public class CreditBureauClient {
 
     public CreditBureauResponse fetchReport(String panNumber) {
         // 1. Append the PAN number as a query parameter in the URL
-        // Make sure the parameter name ("panNumber") matches your BureauController's @RequestParam
         String url = properties.getBaseUrl() + REPORT_ENDPOINT + "?panNumber={panNumber}";
 
         log.info("Calling Credit Bureau (GET) for PAN: {}", panNumber);
@@ -41,7 +40,7 @@ public class CreditBureauClient {
                     url,
                     HttpMethod.GET,
                     entity,
-                    CreditBureauResponse.class,
+                    CreditBureauResponse.class,     // deserialization
                     panNumber // This automatically replaces {panNumber} in the URL
             );
 
@@ -56,7 +55,7 @@ public class CreditBureauClient {
 
     private HttpHeaders getHeader() {
         HttpHeaders headers = new HttpHeaders();
-        // GET requests don't send content, they *accept* content, so we use setAccept instead of setContentType
+        // GET requests don't send content, they 'accept' content, so we use setAccept instead of setContentType
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         return headers;
     }

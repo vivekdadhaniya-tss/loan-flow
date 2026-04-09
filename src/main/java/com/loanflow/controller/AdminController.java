@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasRole('ADMIN')") // Secures all endpoints in this controller
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
     private final UserService userService;
@@ -29,22 +29,15 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
-
         log.info("Admin requested to fetch all users.");
-
         List<UserResponse> users = userService.getAllUsers();
-
         return ResponseEntity.ok(ApiResponse.ok("Users fetched successfully.", users));
     }
 
     @PutMapping("/users/{email}/deactivate")
-    public ResponseEntity<ApiResponse<Void>> deactivateUser(
-            @PathVariable String email) {
-
+    public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable String email) {
         log.info("Admin requested to deactivate user with email : {}", email);
-
         userService.deactivateUser(email);
-
         return ResponseEntity.ok(ApiResponse.ok("User deactivated successfully.", null));
     }
 
@@ -57,13 +50,9 @@ public class AdminController {
 
         log.info("Admin requested to fetch audit logs - Page: {}, Size: {}", page, size);
 
-        // 1. Determine sort direction dynamically
+        // Determine sort direction dynamically
         Sort.Direction sortDirection = direction.equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC;
-
-        // 2. Create the Pageable object
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-
-        // 3. Fetch the paginated data
         Page<AuditLogResponse> paginatedLogs = auditService.getAllAuditLogs(pageable);
 
         return ResponseEntity.ok(ApiResponse.ok("Audit logs fetched successfully.", paginatedLogs));

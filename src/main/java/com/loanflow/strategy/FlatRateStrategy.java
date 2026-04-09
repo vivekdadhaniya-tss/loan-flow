@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Component("FLAT_RATE_LOAN")
 public class FlatRateStrategy implements EmiCalculationStrategy {
 
     @Override

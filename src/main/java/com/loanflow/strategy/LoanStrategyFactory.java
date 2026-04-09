@@ -4,19 +4,19 @@ import com.loanflow.enums.LoanStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 public class LoanStrategyFactory {
 
-    private final FlatRateStrategy flatRateStrategy;
-    private final ReducingBalanceStrategy reducingBalanceStrategy;
-    private final StepUpEmiStrategy stepUpEmiStrategy;
+    private final Map<String, EmiCalculationStrategy> strategyMap;
 
     public EmiCalculationStrategy resolve(LoanStrategy strategy) {
-        return switch (strategy) {
-            case FLAT_RATE_LOAN -> flatRateStrategy;
-            case REDUCING_BALANCE_LOAN -> reducingBalanceStrategy;
-            case STEP_UP_EMI_LOAN -> stepUpEmiStrategy;
-        };
+        EmiCalculationStrategy resolved = strategyMap.get(strategy.name());
+        if (resolved == null) {
+            throw new IllegalArgumentException("No strategy found for: " + strategy);
+        }
+        return resolved;
     }
 }

@@ -2,6 +2,7 @@ package com.loanflow.service.impl;
 
 import com.loanflow.dto.request.AuditRequest;
 import com.loanflow.dto.request.LoanDecisionRequest;
+import com.loanflow.dto.response.LoanApplicationResponse;
 import com.loanflow.dto.response.LoanResponse;
 import com.loanflow.entity.Loan;
 import com.loanflow.entity.LoanApplication;
@@ -12,6 +13,7 @@ import com.loanflow.event.LoanDecisionEvent;
 import com.loanflow.exception.BusinessRuleException;
 import com.loanflow.exception.ResourceNotFoundException;
 import com.loanflow.mapper.LoanMapper;
+import com.loanflow.mapper.LoanApplicationMapper;
 import com.loanflow.repository.EmiScheduleRepository;
 import com.loanflow.repository.LoanApplicationRepository;
 import com.loanflow.repository.LoanRepository;
@@ -44,12 +46,13 @@ public class LoanServiceImpl implements LoanService {
     private final LoanStatusTransitionService loanStatusTransitionService;
     private final LoanStrategyFactory loanStrategyFactory;
     private final AuditService auditService;
+    private final LoanApplicationMapper loanApplicationMapper;
     private final LoanMapper loanMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
-    public LoanResponse processDecision(
+    public Object processDecision(
             String applicationNumber, LoanDecisionRequest request, User officer) {
 
         // fetch application and validate
@@ -96,9 +99,7 @@ public class LoanServiceImpl implements LoanService {
         // AUTO-REJECT IF DTI > 40% (Overrides the Officer's approval)
         if (dtiFinal.compareTo(new BigDecimal("40.00")) > 0) {
             String autoRejectReason = String.format("System Auto-Reject: Final DTI with new loan exceeds 40%% (Calculated: %.2f%%)", dtiFinal);
-
             log.warn("Application {} automatically rejected by system due to high DTI: {}%", applicationNumber, dtiFinal);
-
             return executeRejection(application, autoRejectReason, officer, oldStatus);
         }
 
@@ -106,7 +107,7 @@ public class LoanServiceImpl implements LoanService {
         application.setStatus(ApplicationStatus.APPROVED);
         loanApplicationRepository.save(application);
 
-        // Now finalize the loan details
+
         tempLoan.setLoanNumber(generateLoanNumber());
         tempLoan.setApplication(application);
         tempLoan.setBorrower(application.getBorrower());
@@ -152,7 +153,7 @@ public class LoanServiceImpl implements LoanService {
         return loanMapper.toResponse(savedLoan);
     }
 
-    private LoanResponse executeRejection(LoanApplication application, String reason, User officer, String oldStatus) {
+    private LoanApplicationResponse executeRejection(LoanApplication application, String reason, User officer, String oldStatus) {
         application.setStatus(ApplicationStatus.REJECTED);
         application.setRejectionReason(reason);
         loanApplicationRepository.save(application);
@@ -170,7 +171,7 @@ public class LoanServiceImpl implements LoanService {
 
         eventPublisher.publishEvent(new LoanDecisionEvent(null, application, ApplicationStatus.REJECTED, reason));
 
-        return null;   // No loan created, returns null
+        return loanApplicationMapper.toResponse(application);
     }
 
     private String generateLoanNumber() {

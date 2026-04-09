@@ -3,46 +3,20 @@ package com.loanflow.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Pure EMI formula implementations.
- * No Spring beans — pure static math.
- * All three strategies delegate to these methods.
- */
+
 public final class EmiCalculationUtil {
 
     private EmiCalculationUtil() {}
 
-    // Rate conversion
-
-    /**
-     * Converts annual interest rate (%) to monthly decimal rate.
-     * Formula: annualRate / 100 / 12  = annualRate / 1200
-     *
-     * Examples:
-     *   12% p.a. → 0.01 per month
-     *   8.5% p.a. → 0.0070833... per month
-     *
-     * Precision kept at 10 decimal places to avoid compounding
-     * rounding error across many installments.
-     *
-     */
-    public static BigDecimal calculateMonthlyRate(
-            BigDecimal annualRatePercent) {
+    // 1. Rate conversion
+    public static BigDecimal calculateMonthlyRate(BigDecimal annualRatePercent) {
         return annualRatePercent
                 .divide(new BigDecimal("1200"), 10, RoundingMode.HALF_UP);
     }
 
-    // Reducing balance EMI formula
-
-    /**
-     * Standard reducing balance (PMT) formula:
-     *   EMI = P × r × (1+r)^n / ((1+r)^n - 1)
-     *
-     * Used by:
-     *   ReducingBalanceStrategy — as the fixed EMI for all installments.
-     *   StepUpEmiStrategy       — as the BASE EMI before annual 5% step-up.
-     *
-     */
+    // 2. Reducing balance EMI formula
+    // EMI = P × r × (1+r)^n / ((1+r)^n - 1)
+    // ReducingBalanceStrategy - as the fixed EMI for all installments.
     public static BigDecimal calculateReducingBalanceEmi(
             BigDecimal principal,
             BigDecimal monthlyRate,
@@ -60,40 +34,61 @@ public final class EmiCalculationUtil {
         // (1+r)^n - 1
         BigDecimal denominator = power.subtract(BigDecimal.ONE);
 
-        return MoneyUtil.roundHalfUp(numerator.divide(denominator, 10, RoundingMode.HALF_UP));
+        return MoneyUtil.roundHalfUp(
+                numerator.divide(denominator,
+                10,
+                RoundingMode.HALF_UP));
     }
 
-    // Flat rate helpers
-
     /**
-     * Monthly principal portion for flat rate loans.
-     * Formula: principal / tenureMonths
+     * P = Sum [ (E * growthMultiplier^yearIndex) / (1 + r)^month ]
      *
-     * In flat rate, principal is divided equally every month.
-     * Used by FlatRateStrategy only.
+     * E = P / Sum [ growthMultiplier^yearIndex / (1 + r)^month ]
      *
+     * where,
+     * yearIndex = (month - 1) / 12
+     * r = monthly rate
+     * E = base emi (year-1 emi)
+     * P = Principal
      */
-    public static BigDecimal calculateFlatMonthlyPrincipal(
+    // 3. Step-Up Base EMI formula
+    public static BigDecimal calculateStepUpBaseEmi(
             BigDecimal principal,
-            int tenureMonths) {
+            BigDecimal monthlyRate,
+            int tenureMonths,
+            BigDecimal growthMultiplier) {
+
+        BigDecimal denominator = BigDecimal.ZERO;
+        BigDecimal onePlusR = BigDecimal.ONE.add(monthlyRate);
+
+        for (int i = 1; i <= tenureMonths; i++) {
+            int yearIndex = (i - 1) / 12;
+
+            // (1 + growthMultiplier)^yearIndex
+            BigDecimal growthFactor = growthMultiplier.pow(yearIndex);
+
+            // (1 + r)^i
+            BigDecimal discountFactor = onePlusR.pow(i);
+
+            // denominator += growthFactor / discountFactor
+            BigDecimal term = growthFactor.divide(discountFactor, 10, RoundingMode.HALF_UP);
+            denominator = denominator.add(term);
+        }
+
+        return MoneyUtil.roundHalfUp(principal.divide(denominator, 10, RoundingMode.HALF_UP));
+    }
+
+    // 4. Flat rate helpers
+    public static BigDecimal calculateFlatMonthlyPrincipal(BigDecimal principal, int tenureMonths) {
         return MoneyUtil.roundHalfUp(
                 principal.divide(
                         new BigDecimal(tenureMonths),
-                        10, RoundingMode.HALF_UP));
+                        10,
+                        RoundingMode.HALF_UP)
+        );
     }
 
-    /**
-     * Monthly interest portion for flat rate loans.
-     * Formula: principal × monthlyRate
-     *
-     * In flat rate, interest is always on the ORIGINAL principal,
-     * not the outstanding balance — this is what makes it "flat".
-     * Used by FlatRateStrategy only.
-     *
-     */
-    public static BigDecimal calculateFlatMonthlyInterest(
-            BigDecimal principal,
-            BigDecimal monthlyRate) {
+    public static BigDecimal calculateFlatMonthlyInterest(BigDecimal principal, BigDecimal monthlyRate) {
         return MoneyUtil.roundHalfUp(principal.multiply(monthlyRate));
     }
 }

@@ -5,7 +5,12 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import java.math.BigDecimal;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+import static com.loanflow.constants.LoanConstants.MAX_INTEREST_RATE_PA_STR;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoanDecisionRequest {
 
     @NotNull(message = "Approval decision is required")
@@ -16,7 +21,7 @@ public class LoanDecisionRequest {
 
     // Required when approved = true
     @Positive(message = "Interest rate must be positive")
-    @DecimalMax(value = "36.0", message = "Interest rate exceeds maximum allowed")
+    @DecimalMax(value = MAX_INTEREST_RATE_PA_STR, message = "Interest rate exceeds maximum allowed")
     private BigDecimal interestRatePerAnnum;
 
     //Required when approved = false

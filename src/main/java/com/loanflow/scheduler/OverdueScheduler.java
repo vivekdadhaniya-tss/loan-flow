@@ -15,8 +15,8 @@ public class OverdueScheduler {
 
     private final OverdueMonitorService overdueMonitorService;
 
-    // Runs every day at 01:00 AM — marks missed EMIs as OVERDUE
-    @Scheduled(cron = "0 0 1 * * *")
+    // Runs every day at 12:00:01 AM — marks missed EMIs as OVERDUE
+    @Scheduled(cron = "1 0 0 * * *")
     public void runOverdueScan() {
         log.info("Overdue scan started at {}", LocalDateTime.now());
         overdueMonitorService.scanAndMarkOverdue();
